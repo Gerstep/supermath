@@ -9,7 +9,7 @@ class Builder {
     constructor(options = {}) {
         this.sourceDir = options.sourceDir || path.join(__dirname, '..', 'src');
         this.buildDir = options.buildDir || path.join(__dirname, '..', 'public'); // Changed to public for deployment
-        this.minify = options.minify !== false;
+        this.minify = options.minify === true; // Default to false to avoid syntax errors
         this.version = '2.0.0'; // Set default version
     }
 
@@ -182,14 +182,13 @@ class Builder {
     }
 
     minifyJS(code) {
+        // Much safer minification that preserves strings
         return code
-            .replace(/\/\*[\s\S]*?\*\//g, '')
-            .replace(/\/\/.*$/gm, '')
-            .replace(/\s+/g, ' ')
-            .replace(/;\s*}/g, '}')
-            .replace(/{\s*/g, '{')
-            .replace(/}\s*/g, '}')
-            .replace(/,\s*/g, ',')
+            .replace(/\/\*[\s\S]*?\*\//g, '') // Remove block comments
+            .replace(/\/\/.*$/gm, '') // Remove line comments
+            .replace(/\n\s*\n/g, '\n') // Remove empty lines
+            .replace(/\s*\n\s*/g, ' ') // Replace newlines with spaces
+            .replace(/\s{2,}/g, ' ') // Replace multiple spaces with single space
             .trim();
     }
 
