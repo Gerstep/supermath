@@ -44,7 +44,7 @@
             <div class="welcome-section w-full md:w-2/3 p-6 bg-white rounded-2xl shadow-lg">
                 <h2 class="welcome-title text-2xl font-bold mb-4">Welcome, Super Learner!</h2>
                 <p class="welcome-text text-gray-600 mb-6">Let's practice some math! Pick a challenge below to start the game. You'll see numbers as blocks to help you solve the problems. Have fun!</p>
-                <div class="operation-grid grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="operation-grid grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <button id="addition-btn" class="operation-button btn-addition w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform">
                         Addition +
                     </button>
@@ -57,14 +57,24 @@
                     <button id="division-btn" class="operation-button btn-division w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-6 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform">
                         Division ÷
                     </button>
-                    <button id="supermode-btn" class="operation-button btn-supermode w-full bg-gradient-to-r from-yellow-500 via-red-500 to-purple-500 hover:shadow-xl text-white font-bold py-4 px-6 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform md:col-span-2">
-                        🚀 Super Mode ±
+                </div>
+                <div class="mb-4">
+                    <button id="supermode-btn" class="operation-button btn-supermode w-full bg-gradient-to-r from-yellow-500 via-red-500 to-purple-500 hover:shadow-xl text-white font-bold py-4 px-6 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform">
+                        🚀 Super Mode (Mixed Operations)
                     </button>
                 </div>
-                <div class="mt-6 text-center">
-                    <button onclick="app.showHelpModal()" class="text-blue-500 hover:text-blue-600 text-sm underline">
-                        How to Play (Ctrl+H)
-                    </button>
+                <div class="mt-6 text-center space-y-2">
+                    <div>
+                        <button onclick="app.showHelpModal()" class="text-blue-500 hover:text-blue-600 text-sm underline mr-4">
+                            How to Play (Ctrl+H)
+                        </button>
+                        <button id="achievements-btn" class="text-purple-500 hover:text-purple-600 text-sm underline mr-4">
+                            🏆 View Achievements
+                        </button>
+                        <button id="reset-score-btn" class="text-red-500 hover:text-red-600 text-sm underline">
+                            🗑️ Reset Progress
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -124,26 +134,39 @@
     </div>
 
     <!-- Settings Panel (Hidden by default) -->
-    <div id="settings-panel" class="fixed top-4 right-4 bg-white rounded-lg shadow-lg p-4 hidden">
-        <h3 class="font-bold mb-3">Settings</h3>
-        <div class="space-y-3">
+    <div id="settings-panel" class="fixed top-4 right-4 bg-white rounded-lg shadow-xl border p-6 hidden z-50 min-w-80">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold">⚙️ Settings</h3>
+            <button id="settings-close" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+        </div>
+        <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium mb-1">Difficulty:</label>
-                <select id="difficulty-select" class="w-full p-2 border rounded">
-                    <option value="easy">Easy</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="hard">Hard</option>
+                <label class="block text-sm font-medium mb-2">Difficulty Level:</label>
+                <select id="difficulty-select" class="w-full p-3 border border-gray-300 rounded-lg text-base">
+                    <option value="easy">🟢 Easy (1-10)</option>
+                    <option value="medium" selected>🟡 Medium (1-25)</option>
+                    <option value="hard">🔴 Hard (10-99)</option>
                 </select>
             </div>
             <div>
-                <label class="flex items-center">
-                    <input type="checkbox" id="sound-toggle" checked class="mr-2">
-                    <span class="text-sm">Sound Effects</span>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="sound-toggle" checked class="w-4 h-4">
+                    <span class="text-base">🔊 Sound Effects</span>
                 </label>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-1">API Key (Optional):</label>
-                <input type="password" id="api-key-input" class="w-full p-2 border rounded text-xs" placeholder="Gemini API Key">
+                <label class="block text-sm font-medium mb-2">🤖 Gemini API Key (Optional):</label>
+                <input type="password" id="api-key-input" class="w-full p-3 border border-gray-300 rounded-lg text-sm" placeholder="Enter API key for AI explanations">
+                <p class="text-xs text-gray-500 mt-1">Get your key from <a href="https://makersuite.google.com/" target="_blank" class="text-blue-500 underline">Google AI Studio</a></p>
+            </div>
+            <div class="pt-2 border-t border-gray-200">
+                <button id="export-data-btn" class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm">
+                    📤 Export Progress
+                </button>
+                <button id="import-data-btn" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg text-sm">
+                    📥 Import Progress
+                </button>
+                <input type="file" id="import-file-input" accept=".json" class="hidden">
             </div>
         </div>
     </div>
@@ -167,13 +190,18 @@
     <!-- Scripts -->
     <script type="module" src="src/js/app.js"></script>
     <script>
-        // Settings panel toggle
+        // Settings panel toggle and new features
         document.addEventListener('DOMContentLoaded', () => {
             const settingsToggle = document.getElementById('settings-toggle');
             const settingsPanel = document.getElementById('settings-panel');
+            const settingsClose = document.getElementById('settings-close');
             
             settingsToggle?.addEventListener('click', () => {
                 settingsPanel.classList.toggle('hidden');
+            });
+
+            settingsClose?.addEventListener('click', () => {
+                settingsPanel.classList.add('hidden');
             });
 
             // Close settings panel when clicking outside
@@ -213,7 +241,180 @@
                     window.mathSuperGame.game.showMainMenu();
                 }
             });
+
+            // Reset score button
+            const resetScoreBtn = document.getElementById('reset-score-btn');
+            resetScoreBtn?.addEventListener('click', () => {
+                if (window.mathSuperGame?.game && confirm('Are you sure you want to reset all your progress? This cannot be undone!')) {
+                    window.mathSuperGame.game.storageService.clear();
+                    window.location.reload();
+                }
+            });
+
+            // Achievements button
+            const achievementsBtn = document.getElementById('achievements-btn');
+            achievementsBtn?.addEventListener('click', () => {
+                if (window.mathSuperGame?.game) {
+                    showAchievementsModal();
+                }
+            });
+
+            // Export data button
+            const exportDataBtn = document.getElementById('export-data-btn');
+            exportDataBtn?.addEventListener('click', () => {
+                if (window.mathSuperGame?.game) {
+                    const data = window.mathSuperGame.game.storageService.exportData();
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `math-super-game-progress-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    alert('Progress exported successfully!');
+                }
+            });
+
+            // Import data button
+            const importDataBtn = document.getElementById('import-data-btn');
+            const importFileInput = document.getElementById('import-file-input');
+            
+            importDataBtn?.addEventListener('click', () => {
+                importFileInput.click();
+            });
+
+            importFileInput?.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && window.mathSuperGame?.game) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const data = JSON.parse(event.target.result);
+                            if (confirm('This will replace your current progress. Continue?')) {
+                                window.mathSuperGame.game.storageService.importData(data);
+                                window.location.reload();
+                            }
+                        } catch (error) {
+                            alert('Invalid file format. Please select a valid progress file.');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+                e.target.value = ''; // Reset file input
+            });
         });
+
+        // Achievements modal function
+        function showAchievementsModal() {
+            if (!window.mathSuperGame?.game) return;
+            
+            const game = window.mathSuperGame.game;
+            const player = game.player;
+            
+            let achievementsHTML = '<div class="space-y-4">';
+            
+            // Group achievements by category
+            const categories = {
+                addition: { name: 'Addition', color: 'text-green-600', icon: '+' },
+                subtraction: { name: 'Subtraction', color: 'text-yellow-600', icon: '-' },
+                multiplication: { name: 'Multiplication', color: 'text-red-600', icon: '×' },
+                division: { name: 'Division', color: 'text-purple-600', icon: '÷' },
+                supermode: { name: 'Super Mode', color: 'text-indigo-600', icon: '±' },
+                streak: { name: 'Streak Achievements', color: 'text-blue-600', icon: '🔥' }
+            };
+
+            Object.entries(categories).forEach(([category, info]) => {
+                achievementsHTML += `
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="text-lg font-bold ${info.color} mb-3 flex items-center">
+                            <span class="text-2xl mr-2">${info.icon}</span>
+                            ${info.name}
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                `;
+
+                // Get achievements for this category
+                const categoryAchievements = Array.from(game.achievements.values())
+                    .filter(achievement => achievement.category === category);
+
+                categoryAchievements.forEach(achievement => {
+                    const isUnlocked = player.hasAchievement(achievement.id);
+                    const progress = achievement.checkProgress(player);
+                    const progressPercent = Math.min((progress / achievement.requirement) * 100, 100);
+                    
+                    const medalIcon = {
+                        bronze: '🥉',
+                        silver: '🥈', 
+                        gold: '🥇',
+                        platinum: '🏆'
+                    }[achievement.medal] || '🏆';
+
+                    achievementsHTML += `
+                        <div class="text-center p-3 rounded border ${isUnlocked ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}">
+                            <div class="text-2xl mb-1 ${isUnlocked ? '' : 'grayscale opacity-50'}">${medalIcon}</div>
+                            <h5 class="font-semibold text-sm mb-1">${achievement.name}</h5>
+                            <p class="text-xs text-gray-600 mb-2">${achievement.description}</p>
+                            <div class="text-xs">
+                                <div class="bg-gray-200 rounded-full h-2 mb-1">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${progressPercent}%"></div>
+                                </div>
+                                <span class="${isUnlocked ? 'text-green-600 font-bold' : 'text-gray-500'}">
+                                    ${progress}/${achievement.requirement}
+                                    ${isUnlocked ? ' ✓ UNLOCKED' : ''}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                achievementsHTML += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            achievementsHTML += '</div>';
+
+            // Summary stats
+            const totalAchievements = game.achievements.size;
+            const unlockedAchievements = player.achievements.length;
+            const totalPoints = Array.from(game.achievements.values())
+                .filter(a => player.hasAchievement(a.id))
+                .reduce((sum, a) => sum + a.points, 0);
+
+            const summaryHTML = `
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h3 class="text-lg font-bold text-blue-800 mb-2">🏆 Achievement Summary</h3>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-blue-600">${unlockedAchievements}</div>
+                            <div class="text-sm text-gray-600">Unlocked</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-600">${totalAchievements}</div>
+                            <div class="text-sm text-gray-600">Total</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-yellow-600">${totalPoints}</div>
+                            <div class="text-sm text-gray-600">Bonus Points</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            game.modalManager.create('achievements', {
+                title: '🏆 Your Achievements',
+                content: summaryHTML + achievementsHTML,
+                size: 'xlarge',
+                buttons: [
+                    { text: 'Close', type: 'primary', action: 'close' }
+                ]
+            });
+
+            game.modalManager.show('achievements');
+        }
 
         // Show loading indicator
         window.addEventListener('load', () => {
