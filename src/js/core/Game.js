@@ -884,6 +884,78 @@ class Game {
         }
     }
 
+    showHelpModal() {
+        const helpContent = `
+            <div class="space-y-6">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 class="text-lg font-bold text-blue-800 mb-2">🎯 How to Play</h3>
+                    <p class="text-blue-700">Choose a math operation and solve the problems! You'll see visual blocks to help you understand the numbers.</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <h4 class="font-bold text-green-600 mb-1">Addition (+)</h4>
+                        <p class="text-sm text-gray-600">Add two numbers together. Count all the blocks!</p>
+                    </div>
+                    
+                    <div class="border-l-4 border-yellow-500 pl-4">
+                        <h4 class="font-bold text-yellow-600 mb-1">Subtraction (-)</h4>
+                        <p class="text-sm text-gray-600">Take away blocks from the first number.</p>
+                    </div>
+                    
+                    <div class="border-l-4 border-red-500 pl-4">
+                        <h4 class="font-bold text-red-600 mb-1">Multiplication (×)</h4>
+                        <p class="text-sm text-gray-600">Groups of blocks - count how many in total!</p>
+                    </div>
+                    
+                    <div class="border-l-4 border-purple-500 pl-4">
+                        <h4 class="font-bold text-purple-600 mb-1">Division (÷)</h4>
+                        <p class="text-sm text-gray-600">Split blocks into equal groups.</p>
+                    </div>
+                    
+                    <div class="border-l-4 border-orange-500 pl-4">
+                        <h4 class="font-bold text-orange-600 mb-1">🕵️ Detective Mode</h4>
+                        <p class="text-sm text-gray-600">Find the missing number in the equation!</p>
+                    </div>
+                    
+                    <div class="border-l-4 border-indigo-500 pl-4">
+                        <h4 class="font-bold text-indigo-600 mb-1">🚀 Super Mode</h4>
+                        <p class="text-sm text-gray-600">Mixed operations - all types together!</p>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h3 class="text-lg font-bold text-yellow-800 mb-2">🏆 Badges & Streaks</h3>
+                    <ul class="text-sm text-yellow-700 space-y-1">
+                        <li>• Get 3 correct answers in a row for your first badge!</li>
+                        <li>• Keep going for Bronze (5), Silver (10), and Gold (15) badges</li>
+                        <li>• Wrong answers reset your streak, but you get a second try!</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">⌨️ Keyboard Shortcuts</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• <kbd class="bg-gray-200 px-2 py-1 rounded">Enter</kbd> - Check your answer</li>
+                        <li>• <kbd class="bg-gray-200 px-2 py-1 rounded">Ctrl+H</kbd> - Show this help</li>
+                        <li>• <kbd class="bg-gray-200 px-2 py-1 rounded">Escape</kbd> - Close modals</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+
+        this.modalManager.create('help', {
+            title: '❓ How to Play Math Super Game',
+            content: helpContent,
+            size: 'large',
+            buttons: [
+                { text: 'Got it!', type: 'primary', action: 'close' }
+            ]
+        });
+
+        this.modalManager.show('help');
+    }
+
     destroy() {
         this.eventBus.clear();
         this.modalManager.closeAll();

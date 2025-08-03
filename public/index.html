@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="version" content="2.0.0">
-    <meta name="build-date" content="2025-08-03T16:29:44.408Z">
+    <meta name="build-date" content="2025-08-03T16:34:28.881Z">
     <meta name="generator" content="Math Super Game Builder">
     <title>Math Super Game v2.0.0</title>
     <link rel="stylesheet" href="styles.css">
@@ -74,7 +74,7 @@
                 </div>
                 <div class="mt-6 text-center space-y-2">
                     <div>
-                        <button onclick="app.showHelpModal()" class="text-blue-500 hover:text-blue-600 text-sm underline mr-4">
+                        <button id="help-btn" class="text-blue-500 hover:text-blue-600 text-sm underline mr-4">
                             How to Play (Ctrl+H)
                         </button>
                         <button id="achievements-btn" class="text-purple-500 hover:text-purple-600 text-sm underline mr-4">
@@ -268,6 +268,14 @@
                 if (window.mathSuperGame?.game && confirm('Are you sure you want to reset all your progress? This cannot be undone!')) {
                     window.mathSuperGame.game.storageService.clear();
                     window.location.reload();
+                }
+            });
+
+            // Help button
+            const helpBtn = document.getElementById('help-btn');
+            helpBtn?.addEventListener('click', () => {
+                if (window.mathSuperGame?.game) {
+                    window.mathSuperGame.game.showHelpModal();
                 }
             });
 
