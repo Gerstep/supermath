@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Super Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Playful Primaries -->
+    <!-- Application Structure Plan: The application uses a single-view, state-driven interface. It starts with a mode selection screen (Addition, Subtraction, Multiplication). Choosing a mode hides the selection and reveals the main game area. This structure was chosen for its simplicity and directness, which is ideal for the 7-8 year old target audience. It minimizes cognitive load by presenting one clear task at a time: first choose a topic, then solve the problems within that topic. The user flow is linear and intuitive, keeping the focus entirely on the learning activity. A Gemini-powered explanation feature is added to the feedback modal for incorrect answers to provide on-demand, personalized tutoring. -->
+    <!-- Visualization & Content Choices: Report Info: Numbers need visual representation. -> Goal: Aid understanding of quantity and place value. -> Viz/Presentation Method: Dynamically generated HTML `div` elements styled as blocks, arranged in stacks of ten. -> Interaction: On correct answers, blocks animate to visually demonstrate the operation. -> Justification: This direct visual manipulation is the core teaching tool. Report Info: User needs to solve problems. -> Goal: Provide a clear interface for input and checking. -> Method: A large input field and a clear button. -> Justification: Standard, intuitive UI. Report Info: Feedback is crucial. -> Goal: Provide immediate, reinforcing feedback. -> Method: A full-screen modal with distinct styles for correct/incorrect answers. -> Interaction: Modal appears, user clicks "Next". For incorrect answers, a "✨ Explain" button appears, which calls the Gemini API to generate a simple, step-by-step explanation. -> Justification: Focuses attention, controls game flow, and adds a powerful, AI-driven learning aid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+        }
+        .block {
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 4px;
+            transition: all 0.5s ease-in-out;
+        }
+        .ten-stack {
+            display: flex;
+            flex-direction: column-reverse;
+            margin-right: 0.5rem;
+        }
+        .block-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            min-height: 220px;
+        }
+        .feedback-modal {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .feedback-modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .operator {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #3B82F6;
+        }
+        .number-display {
+            font-size: 5rem;
+            font-weight: 900;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div id="game-container" class="w-full max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-6xl font-black text-blue-600 mb-8">Math Super Game</h1>
+
+        <div id="mode-selection" class="flex flex-col md:flex-row justify-center items-center gap-6">
+             <div class="w-full md:w-2/3 p-6 bg-white rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-4">Welcome, Super Learner!</h2>
+                <p class="text-gray-600 mb-6">Let's practice some math! Pick a challenge below to start the game. You'll see numbers as blocks to help you solve the problems. Have fun!</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="startGame('addition')" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform">Addition +</button>
+                    <button onclick="startGame('subtraction')" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 px-6 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform">Subtraction -</button>
+                    <button onclick="startGame('multiplication')" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-6 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform">Multiply ×</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-area" class="hidden w-full">
+            <div class="flex justify-between items-center mb-6 px-4">
+                <div id="score" class="text-2xl font-bold text-blue-600">Score: 0</div>
+                <button onclick="endGame()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg">Change Mode</button>
+            </div>
+
+            <div class="bg-white p-6 md:p-10 rounded-2xl shadow-xl">
+                <div class="flex flex-col md:flex-row items-center justify-around gap-4 md:gap-8 mb-8">
+                    <div class="flex flex-col items-center">
+                        <div id="num1-display" class="number-display text-green-500"></div>
+                        <div id="num1-blocks" class="block-container"></div>
+                    </div>
+                    <div id="operator-display" class="operator"></div>
+                    <div class="flex flex-col items-center">
+                        <div id="num2-display" class="number-display text-yellow-500"></div>
+                        <div id="num2-blocks" class="block-container"></div>
+                    </div>
+                    <div class="operator text-blue-500">=</div>
+                    <div class="flex flex-col items-center">
+                         <div id="question-mark" class="number-display text-gray-400">?</div>
+                         <div id="answer-blocks" class="block-container hidden"></div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-center gap-4 mt-8">
+                    <input type="number" id="answer-input" class="text-4xl font-bold text-center w-48 p-3 border-4 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" placeholder="?">
+                    <button id="check-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-black py-4 px-10 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform">Check</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="feedback-modal" class="feedback-modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div id="feedback-box" class="text-center p-8 rounded-2xl shadow-2xl w-11/12 max-w-lg transform scale-95 transition-transform duration-300">
+            <h2 id="feedback-title" class="text-5xl font-black mb-4"></h2>
+            <p id="feedback-text" class="text-xl mb-6"></p>
+            <div id="explanation-container" class="bg-gray-100 p-4 rounded-lg my-4 text-left text-base hidden">
+                <div id="explanation-loader" class="loader hidden"></div>
+                <div id="explanation-text"></div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button id="next-btn" class="text-white font-bold py-3 px-6 rounded-xl text-lg">Next Question</button>
+                <button id="explain-btn" class="hidden bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl text-lg">✨ Explain This For Me</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const modeSelection = document.getElementById('mode-selection');
+        const gameArea = document.getElementById('game-area');
+        const scoreDisplay = document.getElementById('score');
+        const num1Display = document.getElementById('num1-display');
+        const num2Display = document.getElementById('num2-display');
+        const operatorDisplay = document.getElementById('operator-display');
+        const num1Blocks = document.getElementById('num1-blocks');
+        const num2Blocks = document.getElementById('num2-blocks');
+        const answerBlocks = document.getElementById('answer-blocks');
+        const questionMark = document.getElementById('question-mark');
+        const answerInput = document.getElementById('answer-input');
+        const checkBtn = document.getElementById('check-btn');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const feedbackBox = document.getElementById('feedback-box');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const nextBtn = document.getElementById('next-btn');
+        const explainBtn = document.getElementById('explain-btn');
+        const explanationContainer = document.getElementById('explanation-container');
+        const explanationLoader = document.getElementById('explanation-loader');
+        const explanationText = document.getElementById('explanation-text');
+
+        let currentMode = '';
+        let num1 = 0;
+        let num2 = 0;
+        let correctAnswer = 0;
+        let score = 0;
+        let level = 1;
+
+        const operations = {
+            addition: {
+                symbol: '+',
+                color: 'text-green-500',
+                generate: (l) => {
+                    num1 = Math.floor(Math.random() * (l * 5)) + 1;
+                    num2 = Math.floor(Math.random() * (l * 5)) + 1;
+                    correctAnswer = num1 + num2;
+                }
+            },
+            subtraction: {
+                symbol: '-',
+                color: 'text-yellow-500',
+                generate: (l) => {
+                    const a = Math.floor(Math.random() * (l * 5)) + 1;
+                    const b = Math.floor(Math.random() * (l * 5)) + 1;
+                    num1 = Math.max(a, b);
+                    num2 = Math.min(a, b);
+                    correctAnswer = num1 - num2;
+                }
+            },
+            multiplication: {
+                symbol: '×',
+                color: 'text-red-500',
+                generate: (l) => {
+                    num1 = Math.floor(Math.random() * Math.min(l * 2, 10)) + 1;
+                    num2 = Math.floor(Math.random() * Math.min(l * 2, 10)) + 1;
+                    correctAnswer = num1 * num2;
+                }
+            }
+        };
+
+        function startGame(mode) {
+            currentMode = mode;
+            score = 0;
+            level = 1;
+            updateScore();
+            modeSelection.classList.add('hidden');
+            gameArea.classList.remove('hidden');
+            nextQuestion();
+        }
+
+        function endGame() {
+            gameArea.classList.add('hidden');
+            modeSelection.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            operations[currentMode].generate(level);
+            
+            num1Display.textContent = num1;
+            num2Display.textContent = num2;
+            operatorDisplay.textContent = operations[currentMode].symbol;
+            operatorDisplay.className = `operator ${operations[currentMode].color}`;
+
+            drawBlocks(num1, num1Blocks, 'bg-green-400');
+            drawBlocks(num2, num2Blocks, 'bg-yellow-400');
+
+            answerInput.value = '';
+            answerInput.focus();
+            
+            questionMark.classList.remove('hidden');
+            answerBlocks.classList.add('hidden');
+            answerBlocks.innerHTML = '';
+            
+            checkBtn.disabled = false;
+        }
+
+        function drawBlocks(number, container, colorClass) {
+            container.innerHTML = '';
+            const tens = Math.floor(number / 10);
+            const ones = number % 10;
+
+            for (let i = 0; i < tens; i++) {
+                const stack = document.createElement('div');
+                stack.className = 'ten-stack';
+                for (let j = 0; j < 10; j++) {
+                    const block = document.createElement('div');
+                    block.className = `block ${colorClass}`;
+                    stack.appendChild(block);
+                }
+                container.appendChild(stack);
+            }
+
+            if (ones > 0) {
+                const stack = document.createElement('div');
+                stack.className = 'ten-stack';
+                for (let i = 0; i < ones; i++) {
+                    const block = document.createElement('div');
+                    block.className = `block ${colorClass}`;
+                    stack.appendChild(block);
+                }
+                container.appendChild(stack);
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(answerInput.value);
+            if(isNaN(userAnswer)) return;
+            checkBtn.disabled = true;
+
+            if (userAnswer === correctAnswer) {
+                score += 10;
+                if (score % 50 === 0) level++;
+                updateScore();
+                showFeedback(true);
+            } else {
+                showFeedback(false);
+            }
+        }
+
+        function showFeedback(isCorrect) {
+            explanationContainer.classList.add('hidden');
+            explanationText.innerHTML = '';
+            explainBtn.classList.add('hidden');
+
+            feedbackModal.classList.remove('hidden');
+            setTimeout(() => feedbackBox.classList.add('scale-100'), 10);
+
+            if (isCorrect) {
+                feedbackBox.className = 'text-center p-8 rounded-2xl shadow-2xl w-11/12 max-w-lg transform scale-95 transition-transform duration-300 bg-green-100';
+                feedbackTitle.textContent = 'Correct!';
+                feedbackTitle.className = 'text-5xl font-black mb-4 text-green-600';
+                feedbackText.textContent = `Great job! ${num1} ${operations[currentMode].symbol} ${num2} is ${correctAnswer}.`;
+                nextBtn.className = 'bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl text-lg';
+                
+                questionMark.classList.add('hidden');
+                answerBlocks.classList.remove('hidden');
+                drawBlocks(correctAnswer, answerBlocks, 'bg-blue-400');
+                
+            } else {
+                feedbackBox.className = 'text-center p-8 rounded-2xl shadow-2xl w-11/12 max-w-lg transform scale-95 transition-transform duration-300 bg-red-100';
+                feedbackTitle.textContent = 'Try Again!';
+                feedbackTitle.className = 'text-5xl font-black mb-4 text-red-600';
+                feedbackText.textContent = `Not quite. The correct answer was ${correctAnswer}. You'll get the next one!`;
+                nextBtn.className = 'bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl text-lg';
+                explainBtn.classList.remove('hidden');
+            }
+        }
+        
+        async function getExplanation() {
+            explanationContainer.classList.remove('hidden');
+            explanationLoader.classList.remove('hidden');
+            explanationText.innerHTML = '';
+            explainBtn.disabled = true;
+
+            const prompt = `Explain to a 7-year-old how to solve ${num1} ${operations[currentMode].symbol} ${num2} step-by-step. Be very simple, encouraging, and use short sentences. Break it down into easy steps. Don't mention the wrong answer, just explain how to get the correct one.`;
+            
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                let text = 'Sorry, I had trouble thinking of an explanation. Please try the next question!';
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                    text = result.candidates[0].content.parts[0].text.replace(/\n/g, '<br>');
+                }
+                explanationText.innerHTML = text;
+
+            } catch (error) {
+                explanationText.textContent = 'There was an error getting the explanation. Please check your connection and try again.';
+            } finally {
+                explanationLoader.classList.add('hidden');
+                explainBtn.disabled = false;
+            }
+        }
+
+
+        function hideFeedback() {
+            feedbackBox.classList.remove('scale-100');
+            feedbackModal.classList.add('hidden');
+            nextQuestion();
+        }
+        
+        function updateScore() {
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        checkBtn.addEventListener('click', checkAnswer);
+        answerInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        nextBtn.addEventListener('click', hideFeedback);
+        explainBtn.addEventListener('click', getExplanation);
+
+    </script>
+</body>
+</html>
