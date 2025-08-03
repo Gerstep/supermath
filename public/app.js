@@ -22,7 +22,7 @@
     }
     
     __modules__['app'] = function(__require__, module, exports) {
-        const Game = __require__('core/Game');
+        const Game = __require__('core/Game').default || __require__('core/Game');
 
 class App {
     constructor() {
@@ -492,24 +492,24 @@ return EventBus;
     };
 
     __modules__['core/Game'] = function(__require__, module, exports) {
-        const EventBus = __require__('core/EventBus');
-const GameState = __require__('core/GameState');
-const Player = __require__('models/Player');
-const Question = __require__('models/Question');
+        const EventBus = __require__('core/EventBus').default || __require__('core/EventBus');
+const GameState = __require__('core/GameState').default || __require__('core/GameState');
+const Player = __require__('models/Player').default || __require__('models/Player');
+const Question = __require__('models/Question').default || __require__('models/Question');
 const { Achievement, ACHIEVEMENT_DEFINITIONS } = __require__('models/Achievement');
-const BadgeSystem = __require__('models/BadgeSystem');
-const StorageService = __require__('services/StorageService');
-const APIService = __require__('services/APIService');
-const SoundService = __require__('services/SoundService');
-const BlockVisualizer = __require__('ui/components/BlockVisualizer');
-const ModalManager = __require__('ui/components/ModalManager');
-const ScoreDisplay = __require__('ui/components/ScoreDisplay');
-const Addition = __require__('operations/Addition');
-const Subtraction = __require__('operations/Subtraction');
-const Multiplication = __require__('operations/Multiplication');
-const Division = __require__('operations/Division');
-const SuperMode = __require__('operations/SuperMode');
-const DetectiveOperation = __require__('operations/DetectiveOperation');
+const BadgeSystem = __require__('models/BadgeSystem').default || __require__('models/BadgeSystem');
+const StorageService = __require__('services/StorageService').default || __require__('services/StorageService');
+const APIService = __require__('services/APIService').default || __require__('services/APIService');
+const SoundService = __require__('services/SoundService').default || __require__('services/SoundService');
+const BlockVisualizer = __require__('ui/components/BlockVisualizer').default || __require__('ui/components/BlockVisualizer');
+const ModalManager = __require__('ui/components/ModalManager').default || __require__('ui/components/ModalManager');
+const ScoreDisplay = __require__('ui/components/ScoreDisplay').default || __require__('ui/components/ScoreDisplay');
+const Addition = __require__('operations/Addition').default || __require__('operations/Addition');
+const Subtraction = __require__('operations/Subtraction').default || __require__('operations/Subtraction');
+const Multiplication = __require__('operations/Multiplication').default || __require__('operations/Multiplication');
+const Division = __require__('operations/Division').default || __require__('operations/Division');
+const SuperMode = __require__('operations/SuperMode').default || __require__('operations/SuperMode');
+const DetectiveOperation = __require__('operations/DetectiveOperation').default || __require__('operations/DetectiveOperation');
 
 class Game {
     constructor() {
@@ -1599,28 +1599,31 @@ return {  Achievement, ACHIEVEMENT_DEFINITIONS  };;
     };
 
     __modules__['models/BadgeSystem'] = function(__require__, module, exports) {
-        export const BADGE_THRESHOLDS = {
+        const BADGE_THRESHOLDS = {
     badge1: 3,
     bronze: 5,
     silver: 10,
     gold: 15
 };
+exports.BADGE_THRESHOLDS = BADGE_THRESHOLDS;
 
-export const BADGE_NAMES = {
+const BADGE_NAMES = {
     badge1: 'First Streak',
     bronze: 'Bronze Streak',
     silver: 'Silver Streak',
     gold: 'Gold Streak'
 };
+exports.BADGE_NAMES = BADGE_NAMES;
 
-export const BADGE_DESCRIPTIONS = {
+const BADGE_DESCRIPTIONS = {
     badge1: '3 correct answers in a row!',
     bronze: '5 correct answers in a row!',
     silver: '10 correct answers in a row!',
     gold: '15 correct answers in a row!'
 };
+exports.BADGE_DESCRIPTIONS = BADGE_DESCRIPTIONS;
 
-export class BadgeSystem {
+class BadgeSystem {
     constructor(player, eventBus) {
         this.player = player;
         this.eventBus = eventBus;
@@ -1717,7 +1720,8 @@ export class BadgeSystem {
     }
 }
 
-return BadgeSystem;
+exports.default = BadgeSystem;
+return exports;
     };
 
     __modules__['models/Player'] = function(__require__, module, exports) {
@@ -2011,7 +2015,7 @@ return Question;
     };
 
     __modules__['operations/Addition'] = function(__require__, module, exports) {
-        const BaseOperation = __require__('operations/BaseOperation');
+        const BaseOperation = __require__('operations/BaseOperation').default || __require__('operations/BaseOperation');
 
 class Addition extends BaseOperation {
     constructor() {
@@ -2097,7 +2101,7 @@ return BaseOperation;
     };
 
     __modules__['operations/DetectiveOperation'] = function(__require__, module, exports) {
-        const BaseOperation = __require__('operations/BaseOperation');
+        const BaseOperation = __require__('operations/BaseOperation').default || __require__('operations/BaseOperation');
 
 class DetectiveOperation extends BaseOperation {
     constructor() {
@@ -2258,7 +2262,7 @@ return DetectiveOperation;
     };
 
     __modules__['operations/Division'] = function(__require__, module, exports) {
-        const BaseOperation = __require__('operations/BaseOperation');
+        const BaseOperation = __require__('operations/BaseOperation').default || __require__('operations/BaseOperation');
 
 class Division extends BaseOperation {
     constructor() {
@@ -2308,7 +2312,7 @@ return Division;
     };
 
     __modules__['operations/Multiplication'] = function(__require__, module, exports) {
-        const BaseOperation = __require__('operations/BaseOperation');
+        const BaseOperation = __require__('operations/BaseOperation').default || __require__('operations/BaseOperation');
 
 class Multiplication extends BaseOperation {
     constructor() {
@@ -2352,7 +2356,7 @@ return Multiplication;
     };
 
     __modules__['operations/Subtraction'] = function(__require__, module, exports) {
-        const BaseOperation = __require__('operations/BaseOperation');
+        const BaseOperation = __require__('operations/BaseOperation').default || __require__('operations/BaseOperation');
 
 class Subtraction extends BaseOperation {
     constructor() {
@@ -2397,7 +2401,7 @@ return Subtraction;
     };
 
     __modules__['operations/SuperMode'] = function(__require__, module, exports) {
-        const BaseOperation = __require__('operations/BaseOperation');
+        const BaseOperation = __require__('operations/BaseOperation').default || __require__('operations/BaseOperation');
 
 class SuperMode extends BaseOperation {
     constructor() {

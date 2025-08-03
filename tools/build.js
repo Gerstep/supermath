@@ -110,11 +110,44 @@ class Builder {
 
         processed = processed.replace(/import\s+(.+?)\s+from\s+['"](.+?)['"];?/g, (match, imports, from) => {
             const resolvedPath = this.resolveModulePath(from, moduleName);
-            return `const ${imports} = __require__('${resolvedPath}');`;
+            
+            // Handle named imports like { BADGE_THRESHOLDS, BadgeSystem }
+            if (imports.includes('{') && imports.includes('}')) {
+                return `const ${imports} = __require__('${resolvedPath}');`;
+            }
+            
+            // Handle default imports - check if the module has named exports
+            // For now, assume default imports need .default accessor for modules with named exports
+            return `const ${imports} = __require__('${resolvedPath}').default || __require__('${resolvedPath}');`;
         });
 
-        processed = processed.replace(/export\s+default\s+(.+?);?$/m, 'return $1;');
+        // Handle export const with object literals (multiline support)
+        processed = processed.replace(/export\s+const\s+(\w+)\s*=\s*\{[\s\S]*?\};/g, (match) => {
+            const constName = match.match(/export\s+const\s+(\w+)/)[1];
+            const objectLiteral = match.replace(/export\s+const\s+\w+\s*=\s*/, '');
+            return `const ${constName} = ${objectLiteral}
+exports.${constName} = ${constName};`;
+        });
+        
+        // Handle simple export const
+        processed = processed.replace(/export\s+const\s+(\w+)\s*=\s*([^{;]+);/g, 'const $1 = $2; exports.$1 = $1;');
+        
+        // Handle export class and function
+        processed = processed.replace(/export\s+class\s+(\w+)/g, 'class $1');
+        processed = processed.replace(/export\s+function\s+(\w+)/g, 'function $1');
+        
+        // Handle export { ... }
         processed = processed.replace(/export\s+\{(.+?)\}/g, 'return { $1 };');
+        
+        // Handle export default - but only if we don't have named exports
+        if (processed.includes('exports.')) {
+            // If we have named exports, also export the default class
+            processed = processed.replace(/export\s+default\s+(.+?);?$/m, 'exports.default = $1;');
+            processed += '\nreturn exports;';
+        } else {
+            // If no named exports, just return the default
+            processed = processed.replace(/export\s+default\s+(.+?);?$/m, 'return $1;');
+        }
 
         if (this.minify) {
             processed = this.minifyJS(processed);
