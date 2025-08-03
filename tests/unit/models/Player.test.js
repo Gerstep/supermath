@@ -136,4 +136,98 @@ describe('Player Model Tests', () => {
         expect(player.settings.difficulty).toBe('hard');
         expect(player.settings.soundEnabled).toBe(true); // Should preserve existing settings
     });
+
+    describe('Badge System', () => {
+        test('should initialize with default badge data', () => {
+            const player = new Player();
+            
+            expect(player.consecutiveCorrect).toBe(0);
+            expect(player.badges).toBeDefined();
+            expect(player.badges.badge1.earned).toBe(false);
+            expect(player.badges.bronze.earned).toBe(false);
+            expect(player.badges.silver.earned).toBe(false);
+            expect(player.badges.gold.earned).toBe(false);
+        });
+
+        test('should track consecutive correct answers', () => {
+            const player = new Player();
+            
+            player.recordAnswer('addition', true, 10);
+            expect(player.consecutiveCorrect).toBe(1);
+            
+            player.recordAnswer('addition', true, 10);
+            expect(player.consecutiveCorrect).toBe(2);
+            
+            player.recordAnswer('addition', false, 0);
+            expect(player.consecutiveCorrect).toBe(0);
+        });
+
+        test('should increment streak correctly', () => {
+            const player = new Player();
+            
+            player.incrementStreak();
+            expect(player.consecutiveCorrect).toBe(1);
+            
+            player.incrementStreak();
+            expect(player.consecutiveCorrect).toBe(2);
+        });
+
+        test('should reset streak correctly', () => {
+            const player = new Player();
+            player.consecutiveCorrect = 5;
+            
+            player.resetStreak();
+            expect(player.consecutiveCorrect).toBe(0);
+        });
+
+        test('should award badges correctly', () => {
+            const player = new Player();
+            
+            const awarded = player.awardBadge('badge1');
+            expect(awarded).toBe(true);
+            expect(player.hasBadge('badge1')).toBe(true);
+            expect(player.badges.badge1.count).toBe(1);
+            expect(player.badges.badge1.lastEarned).toBeTruthy();
+        });
+
+        test('should not award invalid badge types', () => {
+            const player = new Player();
+            
+            const awarded = player.awardBadge('invalid_badge');
+            expect(awarded).toBe(false);
+        });
+
+        test('should return badge progress correctly', () => {
+            const player = new Player();
+            player.consecutiveCorrect = 3;
+            player.awardBadge('badge1');
+            
+            const progress = player.getBadgeProgress();
+            expect(progress.currentStreak).toBe(3);
+            expect(progress.badges.badge1.earned).toBe(true);
+        });
+
+        test('should reset badge progress', () => {
+            const player = new Player();
+            player.awardBadge('badge1');
+            player.awardBadge('bronze');
+            
+            player.resetBadgeProgress();
+            expect(player.badges.badge1.earned).toBe(false);
+            expect(player.badges.bronze.earned).toBe(false);
+        });
+
+        test('should serialize badge data correctly', () => {
+            const player = new Player();
+            player.consecutiveCorrect = 5;
+            player.awardBadge('badge1');
+            
+            const json = player.toJSON();
+            const restored = Player.fromJSON(json);
+            
+            expect(restored.consecutiveCorrect).toBe(5);
+            expect(restored.badges.badge1.earned).toBe(true);
+            expect(restored.badges.badge1.count).toBe(1);
+        });
+    });
 });

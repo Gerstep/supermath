@@ -3,6 +3,7 @@
 @import url('./components/blocks.css');
 @import url('./components/buttons.css');
 @import url('./components/modals.css');
+@import url('./components/badges.css');
 
 /* Reset and base styles */
 * {

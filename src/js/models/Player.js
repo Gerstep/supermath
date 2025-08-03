@@ -22,6 +22,13 @@ class Player {
         this.level = data.level || 1;
         this.streak = data.streak || 0;
         this.bestStreak = data.bestStreak || 0;
+        this.consecutiveCorrect = data.consecutiveCorrect || 0;
+        this.badges = data.badges || {
+            badge1: { earned: false, count: 0, lastEarned: null },
+            bronze: { earned: false, count: 0, lastEarned: null },
+            silver: { earned: false, count: 0, lastEarned: null },
+            gold: { earned: false, count: 0, lastEarned: null }
+        };
     }
 
     generateId() {
@@ -40,12 +47,14 @@ class Player {
             this.operationStats[operation].score += points;
             this.totalScore += points;
             this.streak++;
+            this.consecutiveCorrect++;
             
             if (this.streak > this.bestStreak) {
                 this.bestStreak = this.streak;
             }
         } else {
             this.streak = 0;
+            this.consecutiveCorrect = 0;
         }
 
         this.lastPlayed = new Date().toISOString();
@@ -98,6 +107,42 @@ class Player {
         this.settings = { ...this.settings, ...newSettings };
     }
 
+    // Badge System Methods
+    resetStreak() {
+        this.consecutiveCorrect = 0;
+    }
+
+    incrementStreak() {
+        this.consecutiveCorrect++;
+    }
+
+    awardBadge(badgeType) {
+        if (this.badges[badgeType]) {
+            this.badges[badgeType].earned = true;
+            this.badges[badgeType].count++;
+            this.badges[badgeType].lastEarned = new Date().toISOString();
+            return true;
+        }
+        return false;
+    }
+
+    hasBadge(badgeType) {
+        return this.badges[badgeType] && this.badges[badgeType].earned;
+    }
+
+    getBadgeProgress() {
+        return {
+            currentStreak: this.consecutiveCorrect,
+            badges: { ...this.badges }
+        };
+    }
+
+    resetBadgeProgress() {
+        Object.keys(this.badges).forEach(badgeType => {
+            this.badges[badgeType].earned = false;
+        });
+    }
+
     toJSON() {
         return {
             id: this.id,
@@ -109,7 +154,9 @@ class Player {
             lastPlayed: this.lastPlayed,
             level: this.level,
             streak: this.streak,
-            bestStreak: this.bestStreak
+            bestStreak: this.bestStreak,
+            consecutiveCorrect: this.consecutiveCorrect,
+            badges: this.badges
         };
     }
 

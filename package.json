@@ -49,6 +49,7 @@
       "src/js/**/*.js",
       "!src/js/app.js"
     ],
-    "transform": {}
+    "transform": {},
+    "preset": "modern-node"
   }
 }

@@ -3,6 +3,7 @@ import GameState from './GameState.js';
 import Player from '../models/Player.js';
 import Question from '../models/Question.js';
 import { Achievement, ACHIEVEMENT_DEFINITIONS } from '../models/Achievement.js';
+import BadgeSystem from '../models/BadgeSystem.js';
 import StorageService from '../services/StorageService.js';
 import APIService from '../services/APIService.js';
 import SoundService from '../services/SoundService.js';
@@ -38,6 +39,7 @@ class Game {
 
         this.achievements = new Map();
         this.player = null;
+        this.badgeSystem = null;
         this.currentQuestion = null;
         this.isInitialized = false;
 
@@ -49,6 +51,7 @@ class Game {
 
         try {
             await this.loadPlayer();
+            this.initializeBadgeSystem();
             this.loadAchievements();
             this.applyPlayerSettings();
             this.setupUI();
@@ -79,6 +82,10 @@ class Game {
 
         this.eventBus.on('achievementUnlocked', (data) => {
             this.handleAchievementUnlocked(data);
+        });
+
+        this.eventBus.on('badgeEarned', (data) => {
+            this.handleBadgeEarned(data);
         });
     }
 
@@ -188,6 +195,10 @@ class Game {
         if (modeSelection) modeSelection.classList.remove('hidden');
         if (gameArea) gameArea.classList.add('hidden');
 
+        // Hide streak counter on main menu
+        const streakCounter = document.getElementById('streak-counter');
+        if (streakCounter) streakCounter.classList.add('hidden');
+
         this.updateScoreDisplay();
         this.showPlayerStats();
     }
@@ -220,6 +231,9 @@ class Game {
         
         if (modeSelection) modeSelection.classList.add('hidden');
         if (gameArea) gameArea.classList.remove('hidden');
+
+        // Initialize and show streak counter
+        this.updateStreakDisplay();
 
         this.soundService.playButton();
         this.generateQuestion();
@@ -454,6 +468,13 @@ class Game {
             this.showAnswerVisualization();
             this.updateScoreDisplay();
             this.checkAchievements();
+            
+            // Check for badge awards
+            const newBadge = this.badgeSystem.checkAndAwardBadges(this.player.consecutiveCorrect);
+            
+            // Update streak display
+            this.updateStreakDisplay();
+            
             this.saveProgress();
             this.showFeedback(true);
         } else {
@@ -474,6 +495,10 @@ class Game {
                 );
                 this.updateScoreDisplay();
                 this.checkAchievements();
+                
+                // Update streak display after reset
+                this.updateStreakDisplay();
+                
                 this.saveProgress();
                 this.showFeedback(false, 'show_answer');
             }
@@ -783,10 +808,87 @@ class Game {
         };
     }
 
+    // Badge System Methods
+    initializeBadgeSystem() {
+        if (this.player) {
+            this.badgeSystem = new BadgeSystem(this.player, this.eventBus);
+            console.log('Badge system initialized');
+        }
+    }
+
+    handleBadgeEarned(data) {
+        const { badgeType, streak, name, description } = data;
+        
+        // Play badge sound effect
+        this.soundService.playAchievement();
+        
+        // Show badge popup
+        this.showBadgePopup(badgeType, name, description, streak);
+        
+        console.log(`Badge earned: ${name} at streak ${streak}`);
+    }
+
+    showBadgePopup(badgeType, name, description, streak) {
+        const badgeImages = {
+            badge1: 'assets/medals/badge1.png',
+            bronze: 'assets/medals/bronze.png',
+            silver: 'assets/medals/silver.png',
+            gold: 'assets/medals/gold.png'
+        };
+
+        this.modalManager.create('badge-earned', {
+            title: '🎉 Badge Earned!',
+            content: `
+                <div class="text-center badge-popup">
+                    <div class="badge-image-container mb-4">
+                        <img src="${badgeImages[badgeType]}" alt="${name}" class="badge-image mx-auto" />
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-yellow-600">${name}</h3>
+                    <p class="text-gray-600 mb-4">${description}</p>
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <p class="text-sm font-semibold text-blue-800">Streak: ${streak} correct answers!</p>
+                    </div>
+                </div>
+            `,
+            type: 'success',
+            buttons: [
+                { text: 'Amazing!', type: 'success', action: 'close' }
+            ],
+            size: 'medium'
+        });
+
+        this.modalManager.show('badge-earned');
+    }
+
+    updateStreakDisplay() {
+        if (!this.badgeSystem) return;
+        
+        const progress = this.badgeSystem.getStreakProgress();
+        const streakElement = document.getElementById('streak-counter');
+        
+        if (streakElement) {
+            streakElement.textContent = `Streak: ${progress.currentStreak}`;
+            
+            // Show streak counter if we're in game mode and have a streak
+            if (this.gameState.getState().currentScreen === 'game') {
+                streakElement.classList.remove('hidden');
+            }
+            
+            // Add animation
+            streakElement.classList.add('streak-update');
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                streakElement.classList.remove('streak-update');
+            }, 300);
+        }
+    }
+
     destroy() {
         this.eventBus.clear();
         this.modalManager.closeAll();
         this.scoreDisplay.resetAll();
+        this.badgeSystem = null;
         this.isInitialized = false;
     }
 }

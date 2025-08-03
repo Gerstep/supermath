@@ -497,6 +497,7 @@ const GameState = __require__('core/GameState');
 const Player = __require__('models/Player');
 const Question = __require__('models/Question');
 const { Achievement, ACHIEVEMENT_DEFINITIONS } = __require__('models/Achievement');
+const BadgeSystem = __require__('models/BadgeSystem');
 const StorageService = __require__('services/StorageService');
 const APIService = __require__('services/APIService');
 const SoundService = __require__('services/SoundService');
@@ -532,6 +533,7 @@ class Game {
 
         this.achievements = new Map();
         this.player = null;
+        this.badgeSystem = null;
         this.currentQuestion = null;
         this.isInitialized = false;
 
@@ -543,6 +545,7 @@ class Game {
 
         try {
             await this.loadPlayer();
+            this.initializeBadgeSystem();
             this.loadAchievements();
             this.applyPlayerSettings();
             this.setupUI();
@@ -573,6 +576,10 @@ class Game {
 
         this.eventBus.on('achievementUnlocked', (data) => {
             this.handleAchievementUnlocked(data);
+        });
+
+        this.eventBus.on('badgeEarned', (data) => {
+            this.handleBadgeEarned(data);
         });
     }
 
@@ -682,6 +689,10 @@ class Game {
         if (modeSelection) modeSelection.classList.remove('hidden');
         if (gameArea) gameArea.classList.add('hidden');
 
+        // Hide streak counter on main menu
+        const streakCounter = document.getElementById('streak-counter');
+        if (streakCounter) streakCounter.classList.add('hidden');
+
         this.updateScoreDisplay();
         this.showPlayerStats();
     }
@@ -714,6 +725,9 @@ class Game {
         
         if (modeSelection) modeSelection.classList.add('hidden');
         if (gameArea) gameArea.classList.remove('hidden');
+
+        // Initialize and show streak counter
+        this.updateStreakDisplay();
 
         this.soundService.playButton();
         this.generateQuestion();
@@ -948,6 +962,13 @@ class Game {
             this.showAnswerVisualization();
             this.updateScoreDisplay();
             this.checkAchievements();
+            
+            // Check for badge awards
+            const newBadge = this.badgeSystem.checkAndAwardBadges(this.player.consecutiveCorrect);
+            
+            // Update streak display
+            this.updateStreakDisplay();
+            
             this.saveProgress();
             this.showFeedback(true);
         } else {
@@ -968,6 +989,10 @@ class Game {
                 );
                 this.updateScoreDisplay();
                 this.checkAchievements();
+                
+                // Update streak display after reset
+                this.updateStreakDisplay();
+                
                 this.saveProgress();
                 this.showFeedback(false, 'show_answer');
             }
@@ -1277,10 +1302,87 @@ class Game {
         };
     }
 
+    // Badge System Methods
+    initializeBadgeSystem() {
+        if (this.player) {
+            this.badgeSystem = new BadgeSystem(this.player, this.eventBus);
+            console.log('Badge system initialized');
+        }
+    }
+
+    handleBadgeEarned(data) {
+        const { badgeType, streak, name, description } = data;
+        
+        // Play badge sound effect
+        this.soundService.playAchievement();
+        
+        // Show badge popup
+        this.showBadgePopup(badgeType, name, description, streak);
+        
+        console.log(`Badge earned: ${name} at streak ${streak}`);
+    }
+
+    showBadgePopup(badgeType, name, description, streak) {
+        const badgeImages = {
+            badge1: 'assets/medals/badge1.png',
+            bronze: 'assets/medals/bronze.png',
+            silver: 'assets/medals/silver.png',
+            gold: 'assets/medals/gold.png'
+        };
+
+        this.modalManager.create('badge-earned', {
+            title: '🎉 Badge Earned!',
+            content: `
+                <div class="text-center badge-popup">
+                    <div class="badge-image-container mb-4">
+                        <img src="${badgeImages[badgeType]}" alt="${name}" class="badge-image mx-auto" />
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-yellow-600">${name}</h3>
+                    <p class="text-gray-600 mb-4">${description}</p>
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <p class="text-sm font-semibold text-blue-800">Streak: ${streak} correct answers!</p>
+                    </div>
+                </div>
+            `,
+            type: 'success',
+            buttons: [
+                { text: 'Amazing!', type: 'success', action: 'close' }
+            ],
+            size: 'medium'
+        });
+
+        this.modalManager.show('badge-earned');
+    }
+
+    updateStreakDisplay() {
+        if (!this.badgeSystem) return;
+        
+        const progress = this.badgeSystem.getStreakProgress();
+        const streakElement = document.getElementById('streak-counter');
+        
+        if (streakElement) {
+            streakElement.textContent = `Streak: ${progress.currentStreak}`;
+            
+            // Show streak counter if we're in game mode and have a streak
+            if (this.gameState.getState().currentScreen === 'game') {
+                streakElement.classList.remove('hidden');
+            }
+            
+            // Add animation
+            streakElement.classList.add('streak-update');
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                streakElement.classList.remove('streak-update');
+            }, 300);
+        }
+    }
+
     destroy() {
         this.eventBus.clear();
         this.modalManager.closeAll();
         this.scoreDisplay.resetAll();
+        this.badgeSystem = null;
         this.isInitialized = false;
     }
 }
@@ -1496,6 +1598,128 @@ const ACHIEVEMENT_DEFINITIONS = {
 return {  Achievement, ACHIEVEMENT_DEFINITIONS  };;
     };
 
+    __modules__['models/BadgeSystem'] = function(__require__, module, exports) {
+        export const BADGE_THRESHOLDS = {
+    badge1: 3,
+    bronze: 5,
+    silver: 10,
+    gold: 15
+};
+
+export const BADGE_NAMES = {
+    badge1: 'First Streak',
+    bronze: 'Bronze Streak',
+    silver: 'Silver Streak',
+    gold: 'Gold Streak'
+};
+
+export const BADGE_DESCRIPTIONS = {
+    badge1: '3 correct answers in a row!',
+    bronze: '5 correct answers in a row!',
+    silver: '10 correct answers in a row!',
+    gold: '15 correct answers in a row!'
+};
+
+export class BadgeSystem {
+    constructor(player, eventBus) {
+        this.player = player;
+        this.eventBus = eventBus;
+        this.thresholds = BADGE_THRESHOLDS;
+    }
+
+    checkAndAwardBadges(currentStreak) {
+        const badgesToCheck = ['badge1', 'bronze', 'silver', 'gold'];
+        let newBadge = null;
+
+        for (const badgeType of badgesToCheck) {
+            const threshold = this.thresholds[badgeType];
+            
+            // Check if player has reached threshold and hasn't earned this badge yet
+            if (currentStreak >= threshold && !this.player.hasBadge(badgeType)) {
+                this.player.awardBadge(badgeType);
+                newBadge = badgeType;
+                
+                // Emit badge earned event
+                this.eventBus.emit('badgeEarned', {
+                    badgeType,
+                    streak: currentStreak,
+                    name: BADGE_NAMES[badgeType],
+                    description: BADGE_DESCRIPTIONS[badgeType]
+                });
+                
+                // Only award one badge at a time (highest achieved)
+                break;
+            }
+        }
+
+        return newBadge;
+    }
+
+    getBadgeForStreak(streak) {
+        const badges = Object.keys(this.thresholds).sort((a, b) => 
+            this.thresholds[b] - this.thresholds[a]
+        );
+
+        for (const badge of badges) {
+            if (streak >= this.thresholds[badge]) {
+                return badge;
+            }
+        }
+        return null;
+    }
+
+    getNextBadgeTarget(currentStreak) {
+        const badges = Object.keys(this.thresholds).sort((a, b) => 
+            this.thresholds[a] - this.thresholds[b]
+        );
+
+        for (const badge of badges) {
+            const threshold = this.thresholds[badge];
+            if (currentStreak < threshold && !this.player.hasBadge(badge)) {
+                return {
+                    badgeType: badge,
+                    threshold,
+                    remaining: threshold - currentStreak,
+                    name: BADGE_NAMES[badge]
+                };
+            }
+        }
+        
+        return null; // All badges earned
+    }
+
+    getAllBadges() {
+        return Object.keys(this.thresholds).map(badgeType => ({
+            type: badgeType,
+            name: BADGE_NAMES[badgeType],
+            description: BADGE_DESCRIPTIONS[badgeType],
+            threshold: this.thresholds[badgeType],
+            earned: this.player.hasBadge(badgeType),
+            count: this.player.badges[badgeType].count,
+            lastEarned: this.player.badges[badgeType].lastEarned
+        }));
+    }
+
+    getStreakProgress() {
+        const currentStreak = this.player.consecutiveCorrect;
+        const nextTarget = this.getNextBadgeTarget(currentStreak);
+        
+        return {
+            currentStreak,
+            nextTarget,
+            progress: nextTarget ? (currentStreak / nextTarget.threshold) * 100 : 100
+        };
+    }
+
+    resetProgress() {
+        this.player.resetBadgeProgress();
+        this.eventBus.emit('badgeProgressReset');
+    }
+}
+
+return BadgeSystem;
+    };
+
     __modules__['models/Player'] = function(__require__, module, exports) {
         class Player {
     constructor(data = {}) {
@@ -1521,6 +1745,13 @@ return {  Achievement, ACHIEVEMENT_DEFINITIONS  };;
         this.level = data.level || 1;
         this.streak = data.streak || 0;
         this.bestStreak = data.bestStreak || 0;
+        this.consecutiveCorrect = data.consecutiveCorrect || 0;
+        this.badges = data.badges || {
+            badge1: { earned: false, count: 0, lastEarned: null },
+            bronze: { earned: false, count: 0, lastEarned: null },
+            silver: { earned: false, count: 0, lastEarned: null },
+            gold: { earned: false, count: 0, lastEarned: null }
+        };
     }
 
     generateId() {
@@ -1539,12 +1770,14 @@ return {  Achievement, ACHIEVEMENT_DEFINITIONS  };;
             this.operationStats[operation].score += points;
             this.totalScore += points;
             this.streak++;
+            this.consecutiveCorrect++;
             
             if (this.streak > this.bestStreak) {
                 this.bestStreak = this.streak;
             }
         } else {
             this.streak = 0;
+            this.consecutiveCorrect = 0;
         }
 
         this.lastPlayed = new Date().toISOString();
@@ -1597,6 +1830,42 @@ return {  Achievement, ACHIEVEMENT_DEFINITIONS  };;
         this.settings = { ...this.settings, ...newSettings };
     }
 
+    // Badge System Methods
+    resetStreak() {
+        this.consecutiveCorrect = 0;
+    }
+
+    incrementStreak() {
+        this.consecutiveCorrect++;
+    }
+
+    awardBadge(badgeType) {
+        if (this.badges[badgeType]) {
+            this.badges[badgeType].earned = true;
+            this.badges[badgeType].count++;
+            this.badges[badgeType].lastEarned = new Date().toISOString();
+            return true;
+        }
+        return false;
+    }
+
+    hasBadge(badgeType) {
+        return this.badges[badgeType] && this.badges[badgeType].earned;
+    }
+
+    getBadgeProgress() {
+        return {
+            currentStreak: this.consecutiveCorrect,
+            badges: { ...this.badges }
+        };
+    }
+
+    resetBadgeProgress() {
+        Object.keys(this.badges).forEach(badgeType => {
+            this.badges[badgeType].earned = false;
+        });
+    }
+
     toJSON() {
         return {
             id: this.id,
@@ -1608,7 +1877,9 @@ return {  Achievement, ACHIEVEMENT_DEFINITIONS  };;
             lastPlayed: this.lastPlayed,
             level: this.level,
             streak: this.streak,
-            bestStreak: this.bestStreak
+            bestStreak: this.bestStreak,
+            consecutiveCorrect: this.consecutiveCorrect,
+            badges: this.badges
         };
     }
 

@@ -1,63 +1,67 @@
 {
   "version": "2.0.0",
-  "buildDate": "2025-08-03T15:58:51.900Z",
+  "buildDate": "2025-08-03T16:21:36.350Z",
   "files": {
     "app.js": {
-      "size": 142205,
-      "modified": "2025-08-03T15:58:51.887Z"
+      "size": 150920,
+      "modified": "2025-08-03T16:21:36.343Z"
+    },
+    "assets/medals/badge1.png": {
+      "size": 256731,
+      "modified": "2025-08-03T16:21:36.346Z"
     },
     "assets/medals/bronze.png": {
       "size": 157321,
-      "modified": "2025-08-03T15:58:51.892Z"
+      "modified": "2025-08-03T16:21:36.346Z"
     },
     "assets/medals/gold.png": {
       "size": 160844,
-      "modified": "2025-08-03T15:58:51.893Z"
+      "modified": "2025-08-03T16:21:36.346Z"
     },
     "assets/medals/silver.png": {
       "size": 145117,
-      "modified": "2025-08-03T15:58:51.894Z"
+      "modified": "2025-08-03T16:21:36.346Z"
     },
     "assets/sounds/achievement.mp3": {
       "size": 259134,
-      "modified": "2025-08-03T15:58:51.895Z"
+      "modified": "2025-08-03T16:21:36.347Z"
     },
     "assets/sounds/bg-music.mp3": {
       "size": 2661564,
-      "modified": "2025-08-03T15:58:51.897Z"
+      "modified": "2025-08-03T16:21:36.350Z"
     },
     "assets/sounds/case-closed.mp3": {
       "size": 168,
-      "modified": "2025-08-03T15:58:51.890Z"
+      "modified": "2025-08-03T16:21:36.345Z"
     },
     "assets/sounds/correct.mp3": {
       "size": 18720,
-      "modified": "2025-08-03T15:58:51.898Z"
+      "modified": "2025-08-03T16:21:36.350Z"
     },
     "assets/sounds/incorrect.mp3": {
       "size": 61440,
-      "modified": "2025-08-03T15:58:51.899Z"
+      "modified": "2025-08-03T16:21:36.350Z"
     },
     "index.html": {
-      "size": 23385,
-      "modified": "2025-08-03T15:58:51.900Z"
+      "size": 23495,
+      "modified": "2025-08-03T16:21:36.351Z"
     },
     "styles.css": {
-      "size": 36909,
-      "modified": "2025-08-03T15:58:51.889Z"
+      "size": 41456,
+      "modified": "2025-08-03T16:21:36.344Z"
     }
   },
   "stats": {
-    "totalFiles": 11,
-    "totalSize": 3666807,
+    "totalFiles": 12,
+    "totalSize": 3936910,
     "byType": {
       ".js": {
         "count": 1,
-        "size": 142205
+        "size": 150920
       },
       ".png": {
-        "count": 3,
-        "size": 463282
+        "count": 4,
+        "size": 720013
       },
       ".mp3": {
         "count": 5,
@@ -65,11 +69,11 @@
       },
       ".html": {
         "count": 1,
-        "size": 23385
+        "size": 23495
       },
       ".css": {
         "count": 1,
-        "size": 36909
+        "size": 41456
       }
     }
   }
