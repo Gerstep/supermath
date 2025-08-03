@@ -22,7 +22,7 @@
     }
     
     __modules__['app'] = function(__require__, module, exports) {
-        const Game = __modules__['core/Game.js'] || {};
+        const Game = __require__('core/Game');
 
 class App {
     constructor() {
@@ -492,23 +492,23 @@ return EventBus;
     };
 
     __modules__['core/Game'] = function(__require__, module, exports) {
-        const EventBus = __modules__['core/EventBus.js'] || {};
-const GameState = __modules__['core/GameState.js'] || {};
-const Player = __modules__['/Users/sg/Work/supermath/models/Player.js'] || {};
-const Question = __modules__['/Users/sg/Work/supermath/models/Question.js'] || {};
-const { Achievement, ACHIEVEMENT_DEFINITIONS } = __modules__['/Users/sg/Work/supermath/models/Achievement.js'] || {};
-const StorageService = __modules__['/Users/sg/Work/supermath/services/StorageService.js'] || {};
-const APIService = __modules__['/Users/sg/Work/supermath/services/APIService.js'] || {};
-const SoundService = __modules__['/Users/sg/Work/supermath/services/SoundService.js'] || {};
-const BlockVisualizer = __modules__['/Users/sg/Work/supermath/ui/components/BlockVisualizer.js'] || {};
-const ModalManager = __modules__['/Users/sg/Work/supermath/ui/components/ModalManager.js'] || {};
-const ScoreDisplay = __modules__['/Users/sg/Work/supermath/ui/components/ScoreDisplay.js'] || {};
-const Addition = __modules__['/Users/sg/Work/supermath/operations/Addition.js'] || {};
-const Subtraction = __modules__['/Users/sg/Work/supermath/operations/Subtraction.js'] || {};
-const Multiplication = __modules__['/Users/sg/Work/supermath/operations/Multiplication.js'] || {};
-const Division = __modules__['/Users/sg/Work/supermath/operations/Division.js'] || {};
-const SuperMode = __modules__['/Users/sg/Work/supermath/operations/SuperMode.js'] || {};
-const DetectiveOperation = __modules__['/Users/sg/Work/supermath/operations/DetectiveOperation.js'] || {};
+        const EventBus = __require__('core/EventBus');
+const GameState = __require__('core/GameState');
+const Player = __require__('/Users/sg/Work/supermath/models/Player');
+const Question = __require__('/Users/sg/Work/supermath/models/Question');
+const { Achievement, ACHIEVEMENT_DEFINITIONS } = __require__('/Users/sg/Work/supermath/models/Achievement');
+const StorageService = __require__('/Users/sg/Work/supermath/services/StorageService');
+const APIService = __require__('/Users/sg/Work/supermath/services/APIService');
+const SoundService = __require__('/Users/sg/Work/supermath/services/SoundService');
+const BlockVisualizer = __require__('/Users/sg/Work/supermath/ui/components/BlockVisualizer');
+const ModalManager = __require__('/Users/sg/Work/supermath/ui/components/ModalManager');
+const ScoreDisplay = __require__('/Users/sg/Work/supermath/ui/components/ScoreDisplay');
+const Addition = __require__('/Users/sg/Work/supermath/operations/Addition');
+const Subtraction = __require__('/Users/sg/Work/supermath/operations/Subtraction');
+const Multiplication = __require__('/Users/sg/Work/supermath/operations/Multiplication');
+const Division = __require__('/Users/sg/Work/supermath/operations/Division');
+const SuperMode = __require__('/Users/sg/Work/supermath/operations/SuperMode');
+const DetectiveOperation = __require__('/Users/sg/Work/supermath/operations/DetectiveOperation');
 
 class Game {
     constructor() {
@@ -1661,7 +1661,7 @@ return Question;
     };
 
     __modules__['operations/Addition'] = function(__require__, module, exports) {
-        const BaseOperation = __modules__['operations/BaseOperation.js'] || {};
+        const BaseOperation = __require__('operations/BaseOperation');
 
 class Addition extends BaseOperation {
     constructor() {
@@ -1747,7 +1747,7 @@ return BaseOperation;
     };
 
     __modules__['operations/DetectiveOperation'] = function(__require__, module, exports) {
-        const BaseOperation = __modules__['operations/BaseOperation.js'] || {};
+        const BaseOperation = __require__('operations/BaseOperation');
 
 class DetectiveOperation extends BaseOperation {
     constructor() {
@@ -1908,7 +1908,7 @@ return DetectiveOperation;
     };
 
     __modules__['operations/Division'] = function(__require__, module, exports) {
-        const BaseOperation = __modules__['operations/BaseOperation.js'] || {};
+        const BaseOperation = __require__('operations/BaseOperation');
 
 class Division extends BaseOperation {
     constructor() {
@@ -1958,7 +1958,7 @@ return Division;
     };
 
     __modules__['operations/Multiplication'] = function(__require__, module, exports) {
-        const BaseOperation = __modules__['operations/BaseOperation.js'] || {};
+        const BaseOperation = __require__('operations/BaseOperation');
 
 class Multiplication extends BaseOperation {
     constructor() {
@@ -2002,7 +2002,7 @@ return Multiplication;
     };
 
     __modules__['operations/Subtraction'] = function(__require__, module, exports) {
-        const BaseOperation = __modules__['operations/BaseOperation.js'] || {};
+        const BaseOperation = __require__('operations/BaseOperation');
 
 class Subtraction extends BaseOperation {
     constructor() {
@@ -2047,7 +2047,7 @@ return Subtraction;
     };
 
     __modules__['operations/SuperMode'] = function(__require__, module, exports) {
-        const BaseOperation = __modules__['operations/BaseOperation.js'] || {};
+        const BaseOperation = __require__('operations/BaseOperation');
 
 class SuperMode extends BaseOperation {
     constructor() {

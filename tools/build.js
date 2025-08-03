@@ -110,7 +110,7 @@ class Builder {
 
         processed = processed.replace(/import\s+(.+?)\s+from\s+['"](.+?)['"];?/g, (match, imports, from) => {
             const resolvedPath = this.resolveModulePath(from, moduleName);
-            return `const ${imports} = __modules__['${resolvedPath}'] || {};`;
+            return `const ${imports} = __require__('${resolvedPath}');`;
         });
 
         processed = processed.replace(/export\s+default\s+(.+?);?$/m, 'return $1;');
@@ -126,10 +126,24 @@ class Builder {
     resolveModulePath(importPath, currentModule) {
         if (importPath.startsWith('./')) {
             const currentDir = path.dirname(currentModule);
-            return path.join(currentDir, importPath.slice(2)).replace(/\\/g, '/');
+            let resolvedPath = path.join(currentDir, importPath.slice(2)).replace(/\\/g, '/');
+            // Remove .js extension if present
+            if (resolvedPath.endsWith('.js')) {
+                resolvedPath = resolvedPath.slice(0, -3);
+            }
+            return resolvedPath;
         } else if (importPath.startsWith('../')) {
             const currentDir = path.dirname(currentModule);
-            return path.resolve(currentDir, importPath).replace(/\\/g, '/');
+            let resolvedPath = path.resolve(currentDir, importPath).replace(/\\/g, '/');
+            // Remove .js extension if present
+            if (resolvedPath.endsWith('.js')) {
+                resolvedPath = resolvedPath.slice(0, -3);
+            }
+            return resolvedPath;
+        }
+        // Remove .js extension if present
+        if (importPath.endsWith('.js')) {
+            return importPath.slice(0, -3);
         }
         return importPath;
     }

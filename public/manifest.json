@@ -1,59 +1,59 @@
 {
   "version": "2.0.0",
-  "buildDate": "2025-08-03T15:42:52.787Z",
+  "buildDate": "2025-08-03T15:46:34.496Z",
   "files": {
     "app.js": {
-      "size": 139881,
-      "modified": "2025-08-03T15:42:52.776Z"
+      "size": 139665,
+      "modified": "2025-08-03T15:46:34.486Z"
     },
     "assets/medals/bronze.png": {
       "size": 157321,
-      "modified": "2025-08-03T15:42:52.779Z"
+      "modified": "2025-08-03T15:46:34.489Z"
     },
     "assets/medals/gold.png": {
       "size": 160844,
-      "modified": "2025-08-03T15:42:52.780Z"
+      "modified": "2025-08-03T15:46:34.490Z"
     },
     "assets/medals/silver.png": {
       "size": 145117,
-      "modified": "2025-08-03T15:42:52.781Z"
+      "modified": "2025-08-03T15:46:34.491Z"
     },
     "assets/sounds/achievement.mp3": {
       "size": 259134,
-      "modified": "2025-08-03T15:42:52.782Z"
+      "modified": "2025-08-03T15:46:34.492Z"
     },
     "assets/sounds/bg-music.mp3": {
       "size": 2661564,
-      "modified": "2025-08-03T15:42:52.785Z"
+      "modified": "2025-08-03T15:46:34.494Z"
     },
     "assets/sounds/case-closed.mp3": {
       "size": 168,
-      "modified": "2025-08-03T15:42:52.778Z"
+      "modified": "2025-08-03T15:46:34.488Z"
     },
     "assets/sounds/correct.mp3": {
       "size": 18720,
-      "modified": "2025-08-03T15:42:52.785Z"
+      "modified": "2025-08-03T15:46:34.495Z"
     },
     "assets/sounds/incorrect.mp3": {
       "size": 61440,
-      "modified": "2025-08-03T15:42:52.786Z"
+      "modified": "2025-08-03T15:46:34.495Z"
     },
     "index.html": {
       "size": 23385,
-      "modified": "2025-08-03T15:42:52.787Z"
+      "modified": "2025-08-03T15:46:34.496Z"
     },
     "styles.css": {
       "size": 36909,
-      "modified": "2025-08-03T15:42:52.777Z"
+      "modified": "2025-08-03T15:46:34.487Z"
     }
   },
   "stats": {
     "totalFiles": 11,
-    "totalSize": 3664483,
+    "totalSize": 3664267,
     "byType": {
       ".js": {
         "count": 1,
-        "size": 139881
+        "size": 139665
       },
       ".png": {
         "count": 3,
