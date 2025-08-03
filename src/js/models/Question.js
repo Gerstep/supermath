@@ -9,6 +9,9 @@ class Question {
         this.isComplex = data.isComplex || false;
         this.equation = data.equation || null;
         this.expression = data.expression || null;
+        this.result = data.result || null;
+        this.missingPosition = data.missingPosition || null;
+        this.isDetective = data.isDetective || false;
         this.timeGenerated = new Date().toISOString();
         this.timeAnswered = null;
         this.userAnswer = null;
@@ -95,6 +98,9 @@ class Question {
             isComplex: this.isComplex,
             equation: this.equation,
             expression: this.expression,
+            result: this.result,
+            missingPosition: this.missingPosition,
+            isDetective: this.isDetective,
             timeGenerated: this.timeGenerated,
             timeAnswered: this.timeAnswered,
             userAnswer: this.userAnswer,
