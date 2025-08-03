@@ -14,6 +14,7 @@ import Subtraction from '../operations/Subtraction.js';
 import Multiplication from '../operations/Multiplication.js';
 import Division from '../operations/Division.js';
 import SuperMode from '../operations/SuperMode.js';
+import DetectiveOperation from '../operations/DetectiveOperation.js';
 
 class Game {
     constructor() {
@@ -31,7 +32,8 @@ class Game {
             subtraction: new Subtraction(),
             multiplication: new Multiplication(),
             division: new Division(),
-            supermode: new SuperMode()
+            supermode: new SuperMode(),
+            detective: new DetectiveOperation()
         };
 
         this.achievements = new Map();
@@ -48,6 +50,7 @@ class Game {
         try {
             await this.loadPlayer();
             this.loadAchievements();
+            this.applyPlayerSettings();
             this.setupUI();
             this.setupKeyboardListeners();
             
@@ -97,6 +100,56 @@ class Game {
             const achievement = new Achievement(achievementData);
             this.achievements.set(achievement.id, achievement);
         });
+    }
+
+    applyPlayerSettings() {
+        if (!this.player) return;
+        
+        const settings = this.player.settings;
+        
+        // Apply sound settings
+        if (settings.soundEnabled !== undefined) {
+            this.soundService.setEnabled(settings.soundEnabled);
+        }
+        
+        // Apply music settings
+        if (settings.musicEnabled !== undefined) {
+            this.soundService.setMusicEnabled(settings.musicEnabled);
+            
+            // Start background music if enabled
+            if (settings.musicEnabled) {
+                setTimeout(() => {
+                    this.soundService.startBackgroundMusic();
+                }, 1000); // Start after a short delay
+            }
+        }
+        
+        // Update UI controls to reflect current settings
+        this.updateSettingsUI();
+    }
+
+    updateSettingsUI() {
+        if (!this.player) return;
+        
+        const settings = this.player.settings;
+        
+        // Update difficulty select
+        const difficultySelect = document.getElementById('difficulty-select');
+        if (difficultySelect && settings.difficulty) {
+            difficultySelect.value = settings.difficulty;
+        }
+        
+        // Update sound toggle
+        const soundToggle = document.getElementById('sound-toggle');
+        if (soundToggle) {
+            soundToggle.checked = settings.soundEnabled !== false;
+        }
+        
+        // Update music toggle
+        const musicToggle = document.getElementById('music-toggle');
+        if (musicToggle) {
+            musicToggle.checked = settings.musicEnabled !== false;
+        }
     }
 
     setupUI() {
@@ -210,6 +263,16 @@ class Game {
             return;
         }
 
+        // Check if this is Detective Mode
+        if (this.currentQuestion.operationType === 'detective' || this.currentQuestion.isDetective) {
+            // Show standard problem display for detective mode
+            if (standardProblem) standardProblem.classList.remove('hidden');
+            if (complexProblem) complexProblem.classList.add('hidden');
+            
+            this.displayDetectiveQuestion();
+            return;
+        }
+
         // Show standard problem display and hide complex problem display
         if (standardProblem) standardProblem.classList.remove('hidden');
         if (complexProblem) complexProblem.classList.add('hidden');
@@ -258,6 +321,60 @@ class Game {
         console.log('Displaying complex question:', this.currentQuestion.expression);
     }
 
+    displayDetectiveQuestion() {
+        const num1Display = document.getElementById('num1-display');
+        const num2Display = document.getElementById('num2-display');
+        const operatorDisplay = document.getElementById('operator-display');
+        const questionMark = document.getElementById('question-mark');
+        const answerBlocks = document.getElementById('answer-blocks');
+        const answerInput = document.getElementById('answer-input');
+
+        // Display case theme
+        const operation = this.operations[this.currentQuestion.operationType];
+        if (operation.getRandomCaseTheme) {
+            const theme = operation.getRandomCaseTheme();
+            console.log('Detective Case:', theme);
+        }
+
+        // Show numbers or mystery boxes
+        if (num1Display) {
+            num1Display.textContent = this.currentQuestion.num1 !== null ? this.currentQuestion.num1 : '?';
+            num1Display.className = this.currentQuestion.num1 !== null ? 'number-display text-green-500' : 'number-display text-yellow-500';
+        }
+        
+        if (num2Display) {
+            num2Display.textContent = this.currentQuestion.num2 !== null ? this.currentQuestion.num2 : '?';
+            num2Display.className = this.currentQuestion.num2 !== null ? 'number-display text-yellow-500' : 'number-display text-yellow-500';
+        }
+
+        if (operatorDisplay) {
+            operatorDisplay.textContent = this.currentQuestion.operation;
+            operatorDisplay.className = 'operator text-yellow-500';
+        }
+
+        // Show result or question mark
+        if (questionMark) {
+            if (this.currentQuestion.missingPosition === 'result') {
+                questionMark.classList.remove('hidden');
+                questionMark.textContent = '?';
+            } else {
+                questionMark.classList.add('hidden');
+            }
+        }
+
+        if (answerInput) {
+            answerInput.value = '';
+            answerInput.focus();
+        }
+
+        if (answerBlocks) {
+            answerBlocks.classList.add('hidden');
+            answerBlocks.innerHTML = '';
+        }
+
+        this.visualizeDetectiveQuestion();
+    }
+
     async visualizeQuestion() {
         if (!this.currentQuestion || this.currentQuestion.isComplex) return;
 
@@ -283,6 +400,29 @@ class Game {
         }
     }
 
+    async visualizeDetectiveQuestion() {
+        if (!this.currentQuestion) return;
+
+        const containers = {
+            num1Container: document.getElementById('num1-blocks'),
+            operatorContainer: document.getElementById('operator-display'),
+            num2Container: document.getElementById('num2-blocks'),
+            equalsContainer: document.querySelector('.number-section .operator'),
+            resultContainer: document.getElementById('answer-blocks')
+        };
+
+        // Show result container for detective mode
+        if (containers.resultContainer) {
+            containers.resultContainer.classList.remove('hidden');
+        }
+
+        await this.blockVisualizer.animateDetectiveEquation(
+            this.currentQuestion.equation,
+            containers,
+            this.currentQuestion
+        );
+    }
+
     checkAnswer() {
         if (!this.currentQuestion) return;
 
@@ -302,7 +442,12 @@ class Game {
         );
 
         if (isCorrect) {
-            this.soundService.playCorrect();
+            // Play special sound for Detective Mode
+            if (this.currentQuestion.operationType === 'detective' || this.currentQuestion.isDetective) {
+                this.soundService.playCaseClosed();
+            } else {
+                this.soundService.playCorrect();
+            }
             this.showAnswerVisualization();
         } else {
             this.soundService.playIncorrect();
@@ -329,6 +474,21 @@ class Game {
                     problemExpression.classList.add('text-gray-700');
                 }, 2000);
             }
+            return;
+        }
+
+        // Detective Mode visualization
+        if (this.currentQuestion.operationType === 'detective' || this.currentQuestion.isDetective) {
+            const containers = {
+                num1Container: document.getElementById('num1-blocks'),
+                num2Container: document.getElementById('num2-blocks'),
+                resultContainer: document.getElementById('answer-blocks')
+            };
+
+            const answerInput = document.getElementById('answer-input');
+            const userAnswer = answerInput ? parseInt(answerInput.value) : this.currentQuestion.correctAnswer;
+
+            await this.blockVisualizer.revealDetectiveSolution(containers, this.currentQuestion, userAnswer);
             return;
         }
 
@@ -527,6 +687,12 @@ class Game {
     setSoundEnabled(enabled) {
         this.soundService.setEnabled(enabled);
         this.player.updateSettings({ soundEnabled: enabled });
+        this.saveProgress();
+    }
+
+    setMusicEnabled(enabled) {
+        this.soundService.setMusicEnabled(enabled);
+        this.player.updateSettings({ musicEnabled: enabled });
         this.saveProgress();
     }
 

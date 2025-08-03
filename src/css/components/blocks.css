@@ -212,6 +212,104 @@
     }
 }
 
+/* Detective Mode - Mystery Box Styles */
+.mystery-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 4rem;
+    min-height: 4rem;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #fef3c7, #fed7aa);
+    border: 3px dashed #f59e0b;
+    position: relative;
+    animation: mysteryBoxPulse 2s ease-in-out infinite;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.mystery-content {
+    text-align: center;
+    color: #92400e;
+}
+
+.mystery-symbol {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    animation: mysteryQuestionMark 1.5s ease-in-out infinite;
+}
+
+.mystery-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Detective Mode Animations */
+@keyframes mysteryBoxPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+    }
+}
+
+@keyframes mysteryQuestionMark {
+    0%, 100% {
+        transform: rotate(-5deg);
+    }
+    50% {
+        transform: rotate(5deg) scale(1.1);
+    }
+}
+
+@keyframes detective-reveal {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(180deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+        opacity: 1;
+    }
+}
+
+@keyframes case-closed-popup {
+    0% {
+        transform: translateX(-50%) translateY(20px) scale(0);
+        opacity: 0;
+    }
+    20% {
+        transform: translateX(-50%) translateY(-20px) scale(1.2);
+        opacity: 1;
+    }
+    40% {
+        transform: translateX(-50%) translateY(-25px) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-50%) translateY(-30px) scale(1);
+        opacity: 0;
+    }
+}
+
+.case-closed-effect {
+    animation: case-closed-popup 2s ease-out forwards;
+}
+
+/* Detective Mode Colors */
+.bg-yellow-200 {
+    background: linear-gradient(135deg, #fef3c7, #fed7aa);
+}
+
 /* iPad optimizations */
 @media (min-width: 768px) and (max-width: 1024px) {
     .block {
@@ -232,5 +330,30 @@
     .division-group {
         margin: 0 var(--spacing-sm);
         padding: var(--spacing-sm);
+    }
+    
+    .mystery-box {
+        min-width: 5rem;
+        min-height: 5rem;
+    }
+    
+    .mystery-symbol {
+        font-size: 2.5rem;
+    }
+}
+
+/* Mobile Mystery Box adjustments */
+@media (max-width: 768px) {
+    .mystery-box {
+        min-width: 3rem;
+        min-height: 3rem;
+    }
+    
+    .mystery-symbol {
+        font-size: 1.5rem;
+    }
+    
+    .mystery-label {
+        font-size: 0.625rem;
     }
 }

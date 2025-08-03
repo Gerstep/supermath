@@ -65,7 +65,8 @@ class App {
             { id: 'subtraction-btn', operation: 'subtraction' },
             { id: 'multiplication-btn', operation: 'multiplication' },
             { id: 'division-btn', operation: 'division' },
-            { id: 'supermode-btn', operation: 'supermode' }
+            { id: 'supermode-btn', operation: 'supermode' },
+            { id: 'detective-btn', operation: 'detective' }
         ];
 
         operationButtons.forEach(({ id, operation }) => {
@@ -161,6 +162,12 @@ class App {
                         if (e.ctrlKey || e.metaKey) {
                             e.preventDefault();
                             this.game.startGame('supermode');
+                        }
+                        break;
+                    case '6':
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            this.game.startGame('detective');
                         }
                         break;
                     case 'Escape':
@@ -334,7 +341,7 @@ class App {
                 <div class="text-left space-y-4">
                     <div>
                         <h4 class="font-bold mb-2">🔢 Choose Your Operation:</h4>
-                        <p class="text-sm text-gray-600">Pick Addition (+), Subtraction (-), Multiplication (×), Division (÷), or Super Mode (mixed operations).</p>
+                        <p class="text-sm text-gray-600">Pick Addition (+), Subtraction (-), Multiplication (×), Division (÷), Super Mode (mixed operations), or Detective Mode (find the missing number).</p>
                     </div>
                     <div>
                         <h4 class="font-bold mb-2">👀 Look at the Blocks:</h4>
@@ -352,7 +359,8 @@ class App {
                         <h4 class="font-bold mb-2">⌨️ Keyboard Shortcuts:</h4>
                         <p class="text-sm text-gray-600">
                             Ctrl+1: Addition | Ctrl+2: Subtraction | Ctrl+3: Multiplication<br>
-                            Ctrl+4: Division | Ctrl+5: Super Mode | Escape: Main Menu
+                            Ctrl+4: Division | Ctrl+5: Super Mode | Ctrl+6: Detective Mode<br>
+                            Escape: Main Menu
                         </p>
                     </div>
                 </div>

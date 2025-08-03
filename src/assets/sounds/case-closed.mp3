@@ -1,0 +1,3 @@
+# Placeholder for case-closed sound effect
+# In a real implementation, this would be an actual MP3 file
+# For now, the SoundService will use generated audio as fallback

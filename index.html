@@ -58,9 +58,12 @@
                         Division ÷
                     </button>
                 </div>
-                <div class="mb-4">
+                <div class="space-y-4">
                     <button id="supermode-btn" class="operation-button btn-supermode w-full bg-gradient-to-r from-yellow-500 via-red-500 to-purple-500 hover:shadow-xl text-white font-bold py-4 px-6 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform">
                         🚀 Super Mode (Mixed Operations)
+                    </button>
+                    <button id="detective-btn" class="operation-button btn-detective w-full bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 hover:shadow-xl text-white font-bold py-4 px-6 rounded-xl text-2xl shadow-md transform hover:scale-105 transition-transform">
+                        🕵️ Detective Mode (Find the Missing Number)
                     </button>
                 </div>
                 <div class="mt-6 text-center space-y-2">
@@ -141,7 +144,7 @@
         </div>
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium mb-2">Difficulty Level:</label>
+                <h3 class="text-sm font-medium mb-2">Difficulty Level:</h3>
                 <select id="difficulty-select" class="w-full p-3 border border-gray-300 rounded-lg text-base">
                     <option value="easy">🟢 Easy (1-10)</option>
                     <option value="medium" selected>🟡 Medium (1-25)</option>
@@ -149,13 +152,17 @@
                 </select>
             </div>
             <div>
-                <label class="flex items-center space-x-3 cursor-pointer">
-                    <input type="checkbox" id="sound-toggle" checked class="w-4 h-4">
-                    <span class="text-base">🔊 Sound Effects</span>
-                </label>
+                <h3 class="text-sm font-medium mb-2">🔊 Sound Effects:</h3>
+                <input type="checkbox" id="sound-toggle" checked class="w-4 h-4">
+                <span class="text-base">🔊 Sound Effects</span>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2">🤖 Gemini API Key (Optional):</label>
+                <h3 class="text-sm font-medium mb-2">🎵 Background Music:</h3>
+                <input type="checkbox" id="music-toggle" checked class="w-4 h-4">
+                <span class="text-base">🎵 Background Music</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium mb-2">🤖 Gemini API Key (Optional):</h3>
                 <input type="password" id="api-key-input" class="w-full p-3 border border-gray-300 rounded-lg text-sm" placeholder="Enter API key for AI explanations">
                 <p class="text-xs text-gray-500 mt-1">Get your key from <a href="https://makersuite.google.com/" target="_blank" class="text-blue-500 underline">Google AI Studio</a></p>
             </div>
@@ -214,6 +221,7 @@
             // Settings event listeners
             const difficultySelect = document.getElementById('difficulty-select');
             const soundToggle = document.getElementById('sound-toggle');
+            const musicToggle = document.getElementById('music-toggle');
             const apiKeyInput = document.getElementById('api-key-input');
 
             difficultySelect?.addEventListener('change', (e) => {
@@ -225,6 +233,12 @@
             soundToggle?.addEventListener('change', (e) => {
                 if (window.mathSuperGame?.game) {
                     window.mathSuperGame.game.setSoundEnabled(e.target.checked);
+                }
+            });
+
+            musicToggle?.addEventListener('change', (e) => {
+                if (window.mathSuperGame?.game) {
+                    window.mathSuperGame.game.setMusicEnabled(e.target.checked);
                 }
             });
 

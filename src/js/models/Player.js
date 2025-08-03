@@ -7,12 +7,14 @@ class Player {
             subtraction: { score: 0, questionsAnswered: 0, correctAnswers: 0 },
             multiplication: { score: 0, questionsAnswered: 0, correctAnswers: 0 },
             division: { score: 0, questionsAnswered: 0, correctAnswers: 0 },
-            supermode: { score: 0, questionsAnswered: 0, correctAnswers: 0 }
+            supermode: { score: 0, questionsAnswered: 0, correctAnswers: 0 },
+            detective: { score: 0, questionsAnswered: 0, correctAnswers: 0 }
         };
         this.achievements = data.achievements || [];
         this.settings = data.settings || {
             difficulty: 'medium',
             soundEnabled: true,
+            musicEnabled: true,
             animationSpeed: 'normal'
         };
         this.createdAt = data.createdAt || new Date().toISOString();
