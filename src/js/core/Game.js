@@ -197,17 +197,28 @@ class Game {
     displayQuestion() {
         if (!this.currentQuestion) return;
 
-        const num1Display = document.getElementById('num1-display');
-        const num2Display = document.getElementById('num2-display');
-        const operatorDisplay = document.getElementById('operator-display');
+        const standardProblem = document.getElementById('standard-problem');
+        const complexProblem = document.getElementById('complex-problem');
         const answerInput = document.getElementById('answer-input');
-        const questionMark = document.getElementById('question-mark');
-        const answerBlocks = document.getElementById('answer-blocks');
 
         if (this.currentQuestion.isComplex) {
+            // Hide standard problem display and show complex problem display
+            if (standardProblem) standardProblem.classList.add('hidden');
+            if (complexProblem) complexProblem.classList.remove('hidden');
+            
             this.displayComplexQuestion();
             return;
         }
+
+        // Show standard problem display and hide complex problem display
+        if (standardProblem) standardProblem.classList.remove('hidden');
+        if (complexProblem) complexProblem.classList.add('hidden');
+
+        const num1Display = document.getElementById('num1-display');
+        const num2Display = document.getElementById('num2-display');
+        const operatorDisplay = document.getElementById('operator-display');
+        const questionMark = document.getElementById('question-mark');
+        const answerBlocks = document.getElementById('answer-blocks');
 
         if (num1Display) num1Display.textContent = this.currentQuestion.num1;
         if (num2Display) num2Display.textContent = this.currentQuestion.num2;
@@ -232,16 +243,19 @@ class Game {
     }
 
     displayComplexQuestion() {
-        const problemDisplay = document.getElementById('problem-display');
-        if (problemDisplay) {
-            problemDisplay.textContent = this.currentQuestion.expression;
+        const problemExpression = document.getElementById('problem-expression');
+        const answerInput = document.getElementById('answer-input');
+        
+        if (problemExpression && this.currentQuestion.expression) {
+            problemExpression.textContent = this.currentQuestion.expression;
         }
 
-        const answerInput = document.getElementById('answer-input');
         if (answerInput) {
             answerInput.value = '';
             answerInput.focus();
         }
+
+        console.log('Displaying complex question:', this.currentQuestion.expression);
     }
 
     async visualizeQuestion() {
@@ -301,7 +315,22 @@ class Game {
     }
 
     async showAnswerVisualization() {
-        if (!this.currentQuestion || this.currentQuestion.isComplex) return;
+        if (!this.currentQuestion) return;
+
+        if (this.currentQuestion.isComplex) {
+            // For complex questions, just highlight the answer in the expression
+            const problemExpression = document.getElementById('problem-expression');
+            if (problemExpression) {
+                const fullExpression = `${this.currentQuestion.expression} = ${this.currentQuestion.correctAnswer}`;
+                problemExpression.textContent = fullExpression;
+                problemExpression.classList.add('text-green-600');
+                setTimeout(() => {
+                    problemExpression.classList.remove('text-green-600');
+                    problemExpression.classList.add('text-gray-700');
+                }, 2000);
+            }
+            return;
+        }
 
         const questionMark = document.getElementById('question-mark');
         const answerBlocks = document.getElementById('answer-blocks');
