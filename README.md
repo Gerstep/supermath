@@ -1,128 +1,87 @@
-# Math Super Game
+# Math Super Game 🎮
 
-A visual, interactive math learning game designed for children aged 7-8 years old. The game helps young learners understand mathematical operations through visual block representations and engaging gameplay.
+An educational math game with visual block learning designed for children aged 7-8. Features interactive block visualization, persistent scoring, achievements system, and AI-powered explanations.
 
-## Features
+## ✨ Features
 
-### Current Functionality
-- **Three Math Operations**: Addition, Subtraction, and Multiplication
-- **Visual Learning**: Numbers are represented as blocks arranged in stacks of ten to aid understanding
-- **Progressive Difficulty**: Levels increase automatically as the player scores points
-- **Real-time Feedback**: Immediate visual and textual feedback for answers
-- **AI-Powered Explanations**: Integration with Google's Gemini API to provide step-by-step explanations for incorrect answers
-- **Responsive Design**: Works on desktop and mobile devices
+### Core Operations
+- **Addition (+)** - Visual blocks help understand combining numbers
+- **Subtraction (-)** - See blocks being removed to understand taking away
+- **Multiplication (×)** - Groups of blocks demonstrate repeated addition
+- **Division (÷)** - NEW! Share blocks equally into groups
+- **Super Mode (±)** - NEW! Mixed operations with complex equations
 
-### Game Modes
-1. **Addition (+)**: Practice adding two numbers with visual block representation
-2. **Subtraction (-)**: Learn subtraction with larger number minus smaller number
-3. **Multiplication (×)**: Multiply numbers with visual feedback
+### New Features (v2.0)
+- 🏆 **Achievements System** - Earn bronze, silver, and gold medals
+- 💾 **Persistent Scoring** - Progress saved across sessions
+- ⚙️ **Difficulty Settings** - Easy, Medium, Hard levels
+- 📱 **iPad Optimization** - Touch-friendly interface with larger targets
+- 🎵 **Sound Effects** - Audio feedback for correct/incorrect answers
+- 🤖 **AI Explanations** - Google Gemini API integration for step-by-step help
 
-## Technical Architecture
+## 🚀 Quick Start
 
-### Single-File Structure
-The entire game is contained in a single `index.html` file using:
-- **HTML5** for structure
-- **Tailwind CSS** (CDN) for styling
-- **Vanilla JavaScript** for game logic
-- **Google Fonts** (Nunito) for typography
-- **Google Gemini API** for AI explanations
+### Development Mode
+```bash
+# Install dependencies
+npm install
 
-### Key Components
+# Start development server
+npm run dev
 
-#### Visual Block System
-- Numbers are represented as visual blocks in stacks of 10
-- Blocks are dynamically generated HTML div elements
-- Color-coded by operation type (green for first number, yellow for second, blue for answer)
-- Animations provide visual feedback during correct answers
-
-#### Scoring System
-- Players earn 10 points per correct answer
-- Level increases every 50 points
-- Higher levels generate more complex problems
-
-#### AI Integration
-- Uses Google Gemini 2.5 Flash Preview model
-- Provides child-friendly explanations for incorrect answers
-- Explanations are contextual and step-by-step
-
-## Game Flow
-
-1. **Mode Selection**: Player chooses from Addition, Subtraction, or Multiplication
-2. **Problem Generation**: Random numbers are generated based on current level
-3. **Visual Display**: Numbers appear as both digits and block representations
-4. **Input**: Player enters their answer in a large, clear input field
-5. **Feedback**: Immediate feedback with option for AI explanation if wrong
-6. **Progression**: Automatic advancement to next question
-
-## Code Structure
-
-### Main Variables
-- `currentMode`: Current operation type (addition/subtraction/multiplication)
-- `num1`, `num2`: The two numbers in the current problem
-- `correctAnswer`: The correct result
-- `score`: Player's current score
-- `level`: Current difficulty level
-
-### Key Functions
-- `startGame(mode)`: Initializes game with selected operation
-- `nextQuestion()`: Generates new problem and updates display
-- `drawBlocks(number, container, colorClass)`: Creates visual block representation
-- `checkAnswer()`: Validates player input and provides feedback
-- `showFeedback(isCorrect)`: Displays success/failure modal
-- `getExplanation()`: Calls Gemini API for step-by-step explanation
-
-### Difficulty Scaling
-- **Addition/Subtraction**: Numbers range from 1 to (level × 5)
-- **Multiplication**: Numbers range from 1 to min(level × 2, 10)
-
-## Visual Design
-
-### Color Palette
-- **Primary Blue** (#3B82F6): Operators and branding
-- **Green** (#10B981): Addition and correct feedback
-- **Yellow** (#F59E0B): Subtraction
-- **Red** (#EF4444): Multiplication and incorrect feedback
-- **Purple** (#8B5CF6): Explanation button
-
-### Typography
-- **Nunito Font Family**: Friendly, rounded font appropriate for children
-- **Large Text Sizes**: Easy reading for young learners
-- **Bold Weights**: Clear visual hierarchy
-
-## Browser Support
-- Modern browsers with ES6+ support
-- Mobile-responsive design
-- Touch-friendly interface for tablets
-
-## API Dependencies
-- **Tailwind CSS CDN**: For styling framework
-- **Google Fonts**: For Nunito font family
-- **Google Gemini API**: For AI-powered explanations (requires API key)
-
-## Installation & Setup
-
-1. Clone or download the project
-2. Open `index.html` in a web browser
-3. For AI explanations to work, add your Google Gemini API key to line 311
-
-## Educational Value
-
-### Learning Objectives
-- **Number Recognition**: Visual and numerical representation
-- **Operation Understanding**: Clear visual demonstration of math operations
-- **Problem Solving**: Immediate feedback and explanation system
-- **Progressive Learning**: Automatic difficulty adjustment
-
-### Teaching Methods
-- **Visual-Spatial Learning**: Block representations help visualize quantities
-- **Immediate Feedback**: Reinforcement learning principles
-- **Scaffolding**: AI explanations provide guided support
-- **Gamification**: Scoring system encourages continued engagement
-
-## File Structure
-```
-supermath/
-└── index.html (Complete single-file application)
+# Open browser to http://localhost:3000
 ```
 
-The project follows a minimalist approach with all functionality contained in one file for easy deployment and maintenance.
+### Production Build
+```bash
+# Build for production
+npm run build
+
+# Serve the built files from the `dist` directory
+```
+
+## 🎯 Gameplay
+
+1. **Choose Operation** - Select Addition, Subtraction, Multiplication, Division, or Super Mode
+2. **Visualize** - Watch colorful blocks represent the numbers in your problem
+3. **Solve** - Enter your answer using the keyboard or on-screen input
+4. **Learn** - Get immediate feedback with optional AI-powered explanations
+5. **Progress** - Earn points, level up, and unlock achievements!
+
+### Difficulty Levels
+- **Easy** - Small numbers (1-10) for beginners
+- **Medium** - Moderate numbers (1-25) for building confidence  
+- **Hard** - Larger numbers (10-99) for advanced practice
+
+### Achievement System
+Earn medals in each operation:
+- 🥉 **Bronze** - 50 correct answers
+- 🥈 **Silver** - 200 correct answers  
+- 🥇 **Gold** - 500 correct answers
+
+## 🛠️ Development
+
+### Available Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run test` - Run test suite
+- `npm run lint` - Check code quality
+- `npm run validate` - Run linting and tests
+
+## ⚙️ Configuration
+
+### API Integration
+To enable AI-powered explanations:
+1. Get a Google Gemini API key from [Google AI Studio](https://makersuite.google.com/)
+2. Click the settings gear (⚙️) in the top-right corner
+3. Enter your API key in the "API Key" field
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+**Made with ❤️ for young mathematicians everywhere!**
+
+*Math Super Game v2.0 - Transforming math education through visual, interactive learning.*

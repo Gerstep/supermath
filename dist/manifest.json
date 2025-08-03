@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "buildDate": "2025-08-03T15:13:20.551Z",
+  "files": {
+    "app.js": {
+      "size": 80826,
+      "modified": "2025-08-03T15:13:20.547Z"
+    },
+    "index.html": {
+      "size": 12094,
+      "modified": "2025-08-03T15:13:20.551Z"
+    },
+    "styles.css": {
+      "size": 24689,
+      "modified": "2025-08-03T15:13:20.549Z"
+    }
+  },
+  "stats": {
+    "totalFiles": 3,
+    "totalSize": 117609,
+    "byType": {
+      ".js": {
+        "count": 1,
+        "size": 80826
+      },
+      ".html": {
+        "count": 1,
+        "size": 12094
+      },
+      ".css": {
+        "count": 1,
+        "size": 24689
+      }
+    }
+  }
+}

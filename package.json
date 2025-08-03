@@ -16,23 +16,33 @@
     "validate": "npm run lint && npm run test:coverage",
     "deploy": "npm run validate && npm run build"
   },
-  "keywords": ["education", "math", "game", "children", "learning", "blocks", "visualization"],
+  "keywords": [
+    "education",
+    "math",
+    "game",
+    "children",
+    "learning",
+    "blocks",
+    "visualization"
+  ],
   "author": "Math Super Game Team",
   "license": "MIT",
   "devDependencies": {
-    "jest": "^29.0.0",
-    "jsdom": "^20.0.0",
-    "playwright": "^1.28.0",
     "@testing-library/dom": "^8.19.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/user-event": "^14.4.3",
     "eslint": "^8.0.0",
-    "prettier": "^2.8.0",
-    "express": "^4.18.0"
+    "express": "^4.21.2",
+    "jest": "^29.0.0",
+    "jsdom": "^20.0.0",
+    "playwright": "^1.28.0",
+    "prettier": "^2.8.0"
   },
   "jest": {
     "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": ["@testing-library/jest-dom/extend-expect"],
+    "setupFilesAfterEnv": [
+      "@testing-library/jest-dom/extend-expect"
+    ],
     "collectCoverageFrom": [
       "src/js/**/*.js",
       "!src/js/app.js"
