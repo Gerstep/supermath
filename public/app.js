@@ -930,15 +930,15 @@ class Game {
         if (!userAnswer) return;
 
         const isCorrect = this.currentQuestion.submitAnswer(userAnswer);
-        const points = this.currentQuestion.getPoints() + this.currentQuestion.getDifficultyBonus();
-
-        this.player.recordAnswer(
-            this.currentQuestion.operationType, 
-            isCorrect, 
-            isCorrect ? points : 0
-        );
 
         if (isCorrect) {
+            const points = this.currentQuestion.getPoints() + this.currentQuestion.getDifficultyBonus();
+            this.player.recordAnswer(
+                this.currentQuestion.operationType, 
+                true, 
+                points
+            );
+
             // Play special sound for Detective Mode
             if (this.currentQuestion.operationType === 'detective' || this.currentQuestion.isDetective) {
                 this.soundService.playCaseClosed();
@@ -946,14 +946,32 @@ class Game {
                 this.soundService.playCorrect();
             }
             this.showAnswerVisualization();
+            this.updateScoreDisplay();
+            this.checkAchievements();
+            this.saveProgress();
+            this.showFeedback(true);
         } else {
             this.soundService.playIncorrect();
+            
+            if (this.currentQuestion.hasAttemptsLeft()) {
+                // Show "try again" message
+                this.showFeedback(false, 'tryagain');
+                // Clear the input for another attempt
+                answerInput.value = '';
+                answerInput.focus();
+            } else {
+                // No more attempts, record the failure and show correct answer
+                this.player.recordAnswer(
+                    this.currentQuestion.operationType, 
+                    false, 
+                    0
+                );
+                this.updateScoreDisplay();
+                this.checkAchievements();
+                this.saveProgress();
+                this.showFeedback(false, 'show_answer');
+            }
         }
-
-        this.updateScoreDisplay();
-        this.checkAchievements();
-        this.saveProgress();
-        this.showFeedback(isCorrect);
     }
 
     async showAnswerVisualization() {
@@ -1004,45 +1022,87 @@ class Game {
         }
     }
 
-    showFeedback(isCorrect) {
-        const onNext = () => {
-            this.modalManager.close('feedback');
-            this.generateQuestion();
-        };
+    showFeedback(isCorrect, mode = null) {
+        if (isCorrect) {
+            // Correct answer
+            const onNext = () => {
+                this.modalManager.close('feedback');
+                this.generateQuestion();
+            };
 
-        const onExplain = async () => {
-            this.modalManager.showLoadingExplanation();
-            const operation = this.operations[this.currentQuestion.operationType];
-            let prompt;
-            
-            if (this.currentQuestion.isComplex) {
-                prompt = operation.getExplanationPrompt(this.currentQuestion.expression);
+            this.modalManager.showFeedbackModal(
+                true,
+                this.currentQuestion,
+                onNext,
+                null
+            );
+        } else if (mode === 'tryagain') {
+            // Wrong answer, but has more attempts
+            const onTryAgain = () => {
+                this.modalManager.close('feedback');
+                // Focus is already set in checkAnswer method
+            };
+
+            this.modalManager.create('feedback', {
+                title: 'Try Again! 🎯',
+                content: `
+                    <div class="text-center">
+                        <p class="text-lg mb-4">Not quite right. Give it another try!</p>
+                        <p class="text-sm text-gray-600">Attempt ${this.currentQuestion.attempts} of ${this.currentQuestion.maxAttempts}</p>
+                    </div>
+                `,
+                type: 'warning',
+                buttons: [
+                    { text: 'Try Again', type: 'primary', action: 'tryagain' }
+                ]
+            });
+
+            this.modalManager.eventBus.on('modalButtonClick', (data) => {
+                if (data.modalId === 'feedback' && data.action === 'tryagain') {
+                    onTryAgain();
+                }
+            });
+
+            this.modalManager.show('feedback');
+        } else if (mode === 'show_answer') {
+            // Wrong answer, no more attempts, show correct answer
+            const onNext = () => {
+                this.modalManager.close('feedback');
+                this.generateQuestion();
+            };
+
+            let questionText;
+            if (this.currentQuestion.isComplex && this.currentQuestion.expression) {
+                questionText = `${this.currentQuestion.expression} = ${this.currentQuestion.correctAnswer}`;
             } else {
-                prompt = operation.getExplanationPrompt(
-                    this.currentQuestion.num1,
-                    this.currentQuestion.num2
-                );
+                questionText = `${this.currentQuestion.num1} ${this.currentQuestion.operation} ${this.currentQuestion.num2} = ${this.currentQuestion.correctAnswer}`;
             }
 
-            try {
-                const explanation = await this.apiService.generateExplanation(
-                    prompt,
-                    this.currentQuestion.operationType
-                );
-                this.modalManager.showExplanation(explanation);
-                this.currentQuestion.requestExplanation();
-            } catch (error) {
-                console.error('Error getting explanation:', error);
-                this.modalManager.showExplanation('Sorry, I had trouble getting an explanation. Please try the next question!');
-            }
-        };
+            this.modalManager.create('feedback', {
+                title: 'The Correct Answer 💡',
+                content: `
+                    <div class="text-center">
+                        <p class="text-lg mb-4">The correct answer is:</p>
+                        <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                            <p class="text-2xl font-bold text-blue-600">${questionText}</p>
+                        </div>
+                        <p class="text-sm text-gray-600">Keep practicing - you'll get it next time!</p>
+                    </div>
+                `,
+                type: 'info',
+                buttons: [
+                    { text: 'Next Question', type: 'primary', action: 'next' }
+                ]
+            });
 
-        this.modalManager.showFeedbackModal(
-            isCorrect,
-            this.currentQuestion,
-            onNext,
-            !isCorrect ? onExplain : null
-        );
+            this.modalManager.eventBus.on('modalButtonClick', (data) => {
+                if (data.modalId === 'feedback' && data.action === 'next') {
+                    onNext();
+                }
+            });
+
+            this.modalManager.show('feedback');
+        }
     }
 
     checkAchievements() {
@@ -1578,13 +1638,24 @@ return Player;
         this.isCorrect = null;
         this.hintsUsed = 0;
         this.explanationRequested = false;
+        this.attempts = 0;
+        this.maxAttempts = 2;
     }
 
     submitAnswer(answer, timeAnswered = new Date().toISOString()) {
         this.userAnswer = parseInt(answer);
+        this.attempts++;
         this.timeAnswered = timeAnswered;
         this.isCorrect = this.userAnswer === this.correctAnswer;
         return this.isCorrect;
+    }
+
+    hasAttemptsLeft() {
+        return this.attempts < this.maxAttempts;
+    }
+
+    isLastAttempt() {
+        return this.attempts === this.maxAttempts - 1;
     }
 
     getResponseTime() {
@@ -1652,7 +1723,9 @@ return Player;
             userAnswer: this.userAnswer,
             isCorrect: this.isCorrect,
             hintsUsed: this.hintsUsed,
-            explanationRequested: this.explanationRequested
+            explanationRequested: this.explanationRequested,
+            attempts: this.attempts,
+            maxAttempts: this.maxAttempts
         };
     }
 }

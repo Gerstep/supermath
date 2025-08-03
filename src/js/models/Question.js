@@ -15,13 +15,24 @@ class Question {
         this.isCorrect = null;
         this.hintsUsed = 0;
         this.explanationRequested = false;
+        this.attempts = 0;
+        this.maxAttempts = 2;
     }
 
     submitAnswer(answer, timeAnswered = new Date().toISOString()) {
         this.userAnswer = parseInt(answer);
+        this.attempts++;
         this.timeAnswered = timeAnswered;
         this.isCorrect = this.userAnswer === this.correctAnswer;
         return this.isCorrect;
+    }
+
+    hasAttemptsLeft() {
+        return this.attempts < this.maxAttempts;
+    }
+
+    isLastAttempt() {
+        return this.attempts === this.maxAttempts - 1;
     }
 
     getResponseTime() {
@@ -89,7 +100,9 @@ class Question {
             userAnswer: this.userAnswer,
             isCorrect: this.isCorrect,
             hintsUsed: this.hintsUsed,
-            explanationRequested: this.explanationRequested
+            explanationRequested: this.explanationRequested,
+            attempts: this.attempts,
+            maxAttempts: this.maxAttempts
         };
     }
 }
