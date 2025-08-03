@@ -494,21 +494,21 @@ return EventBus;
     __modules__['core/Game'] = function(__require__, module, exports) {
         const EventBus = __require__('core/EventBus');
 const GameState = __require__('core/GameState');
-const Player = __require__('/Users/sg/Work/supermath/models/Player');
-const Question = __require__('/Users/sg/Work/supermath/models/Question');
-const { Achievement, ACHIEVEMENT_DEFINITIONS } = __require__('/Users/sg/Work/supermath/models/Achievement');
-const StorageService = __require__('/Users/sg/Work/supermath/services/StorageService');
-const APIService = __require__('/Users/sg/Work/supermath/services/APIService');
-const SoundService = __require__('/Users/sg/Work/supermath/services/SoundService');
-const BlockVisualizer = __require__('/Users/sg/Work/supermath/ui/components/BlockVisualizer');
-const ModalManager = __require__('/Users/sg/Work/supermath/ui/components/ModalManager');
-const ScoreDisplay = __require__('/Users/sg/Work/supermath/ui/components/ScoreDisplay');
-const Addition = __require__('/Users/sg/Work/supermath/operations/Addition');
-const Subtraction = __require__('/Users/sg/Work/supermath/operations/Subtraction');
-const Multiplication = __require__('/Users/sg/Work/supermath/operations/Multiplication');
-const Division = __require__('/Users/sg/Work/supermath/operations/Division');
-const SuperMode = __require__('/Users/sg/Work/supermath/operations/SuperMode');
-const DetectiveOperation = __require__('/Users/sg/Work/supermath/operations/DetectiveOperation');
+const Player = __require__('models/Player');
+const Question = __require__('models/Question');
+const { Achievement, ACHIEVEMENT_DEFINITIONS } = __require__('models/Achievement');
+const StorageService = __require__('services/StorageService');
+const APIService = __require__('services/APIService');
+const SoundService = __require__('services/SoundService');
+const BlockVisualizer = __require__('ui/components/BlockVisualizer');
+const ModalManager = __require__('ui/components/ModalManager');
+const ScoreDisplay = __require__('ui/components/ScoreDisplay');
+const Addition = __require__('operations/Addition');
+const Subtraction = __require__('operations/Subtraction');
+const Multiplication = __require__('operations/Multiplication');
+const Division = __require__('operations/Division');
+const SuperMode = __require__('operations/SuperMode');
+const DetectiveOperation = __require__('operations/DetectiveOperation');
 
 class Game {
     constructor() {

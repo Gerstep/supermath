@@ -134,7 +134,8 @@ class Builder {
             return resolvedPath;
         } else if (importPath.startsWith('../')) {
             const currentDir = path.dirname(currentModule);
-            let resolvedPath = path.resolve(currentDir, importPath).replace(/\\/g, '/');
+            // Use path.posix.join to avoid absolute paths
+            let resolvedPath = path.posix.normalize(path.posix.join(currentDir, importPath));
             // Remove .js extension if present
             if (resolvedPath.endsWith('.js')) {
                 resolvedPath = resolvedPath.slice(0, -3);
