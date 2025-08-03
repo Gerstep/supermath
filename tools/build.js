@@ -1,18 +1,22 @@
-const fs = require('fs').promises;
-const path = require('path');
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class Builder {
     constructor(options = {}) {
         this.sourceDir = options.sourceDir || path.join(__dirname, '..', 'src');
-        this.buildDir = options.buildDir || path.join(__dirname, '..', 'dist');
+        this.buildDir = options.buildDir || path.join(__dirname, '..', 'public'); // Changed to public for deployment
         this.minify = options.minify !== false;
-        this.version = this.getVersion();
+        this.version = '2.0.0'; // Set default version
     }
 
-    getVersion() {
+    async getVersion() {
         try {
             const packagePath = path.join(__dirname, '..', 'package.json');
-            const packageData = require(packagePath);
+            const packageData = JSON.parse(await fs.readFile(packagePath, 'utf8'));
             return packageData.version || '1.0.0';
         } catch (error) {
             return '1.0.0';
@@ -23,6 +27,9 @@ class Builder {
         console.log('🔨 Starting Math Super Game build process...\n');
         
         try {
+            // Get version dynamically
+            this.version = await this.getVersion();
+            
             await this.cleanBuildDir();
             await this.createBuildDir();
             await this.bundleJavaScript();
@@ -33,6 +40,22 @@ class Builder {
             
             console.log('\n✅ Build completed successfully!');
             console.log(`📦 Build output: ${this.buildDir}`);
+            
+            // Verify build output
+            const buildExists = await this.fileExists(this.buildDir);
+            const indexExists = await this.fileExists(path.join(this.buildDir, 'index.html'));
+            
+            if (!buildExists) {
+                throw new Error(`Build directory ${this.buildDir} was not created`);
+            }
+            
+            if (!indexExists) {
+                throw new Error(`index.html was not created in ${this.buildDir}`);
+            }
+            
+            console.log(`✅ Build verification passed`);
+            console.log(`   📁 Directory exists: ${this.buildDir}`);
+            console.log(`   📄 index.html exists: ${indexExists}`);
             
             const stats = await this.getBuildStats();
             this.printBuildStats(stats);
@@ -49,7 +72,7 @@ class Builder {
     async cleanBuildDir() {
         console.log('🧹 Cleaning build directory...');
         try {
-            await fs.rmdir(this.buildDir, { recursive: true });
+            await fs.rm(this.buildDir, { recursive: true, force: true });
         } catch (error) {
             // Directory might not exist, that's okay
         }
@@ -240,13 +263,24 @@ class Builder {
     async copyAssets() {
         console.log('📄 Copying assets...');
         
-        const assetsDir = path.join(this.sourceDir, 'assets');
+        // Copy from src/assets
+        const srcAssetsDir = path.join(this.sourceDir, 'assets');
         const outputAssetsDir = path.join(this.buildDir, 'assets');
         
-        if (await this.fileExists(assetsDir)) {
-            await this.copyDirectory(assetsDir, outputAssetsDir);
-            console.log(`   ✓ Copied assets directory`);
-        } else {
+        if (await this.fileExists(srcAssetsDir)) {
+            await this.copyDirectory(srcAssetsDir, outputAssetsDir);
+            console.log(`   ✓ Copied src/assets directory`);
+        }
+        
+        // Also copy from root assets directory
+        const rootAssetsDir = path.join(__dirname, '..', 'assets');
+        
+        if (await this.fileExists(rootAssetsDir)) {
+            await this.copyDirectory(rootAssetsDir, outputAssetsDir);
+            console.log(`   ✓ Copied root assets directory`);
+        }
+        
+        if (!await this.fileExists(srcAssetsDir) && !await this.fileExists(rootAssetsDir)) {
             console.log(`   ⚠ No assets directory found`);
         }
     }
@@ -407,7 +441,8 @@ class Builder {
     }
 }
 
-if (require.main === module) {
+// Check if this module is being run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
     const args = process.argv.slice(2);
     const options = {};
     
@@ -424,4 +459,4 @@ if (require.main === module) {
     builder.build().catch(console.error);
 }
 
-module.exports = Builder;
+export default Builder;

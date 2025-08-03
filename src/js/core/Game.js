@@ -354,11 +354,14 @@ class Game {
 
         // Show result or question mark
         if (questionMark) {
+            questionMark.classList.remove('hidden');
             if (this.currentQuestion.missingPosition === 'result') {
-                questionMark.classList.remove('hidden');
                 questionMark.textContent = '?';
+                questionMark.className = 'number-display text-gray-400';
             } else {
-                questionMark.classList.add('hidden');
+                // Show the actual result when it's not the missing part
+                questionMark.textContent = this.currentQuestion.result;
+                questionMark.className = 'number-display text-purple-600';
             }
         }
 

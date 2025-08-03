@@ -1,6 +1,10 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class DevServer {
     constructor(options = {}) {
@@ -267,7 +271,8 @@ class DevServer {
     }
 }
 
-if (require.main === module) {
+// Check if this module is being run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
     const args = process.argv.slice(2);
     const options = {};
     
@@ -286,4 +291,4 @@ if (require.main === module) {
     server.start().catch(console.error);
 }
 
-module.exports = DevServer;
+export default DevServer;

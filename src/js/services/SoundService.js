@@ -25,10 +25,10 @@ class SoundService {
 
     preloadSounds() {
         const soundFiles = {
-            correct: 'src/assets/sounds/correct.mp3',
-            incorrect: 'src/assets/sounds/incorrect.mp3',
-            achievement: 'src/assets/sounds/achievement.mp3',
-            caseClosed: 'src/assets/sounds/case-closed.mp3',
+            correct: 'assets/sounds/correct.mp3',
+            incorrect: 'assets/sounds/incorrect.mp3',
+            achievement: 'assets/sounds/achievement.mp3',
+            caseClosed: 'assets/sounds/case-closed.mp3',
             click: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhCkGo',
             button: 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhCkGo'
         };
@@ -38,7 +38,7 @@ class SoundService {
         });
 
         // Load background music separately
-        this.loadBackgroundMusic('src/assets/sounds/bg-music.mp3');
+        this.loadBackgroundMusic('assets/sounds/bg-music.mp3');
     }
 
     async loadSound(name, url) {
